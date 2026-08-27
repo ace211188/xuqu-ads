@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>廣告作戰台｜序曲音樂學院</title>
+<style>
+:root{
+  --ink:#04212A; --sea:#0A2F3A; --surge:#10404E; --line:#1A5763; --line-soft:#123B47;
+  --foam:#E9F3F2; --mist:#7DA5AB; --dim:#4E7C84;
+  --coral:#F2705F; --coral-deep:#8C3A33; --coral-soft:#3A1F1D;
+  --gold:#E8B54B; --gold-soft:#3A3018;
+  --kelp:#46B995; --kelp-soft:#0F3A31;
+  --sans:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans",sans-serif;
+  --mono:Consolas,"SF Mono",Menlo,ui-monospace,monospace;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink); color:var(--foam);
+  font-family:var(--sans); font-size:15px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 100px}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--line-soft); margin-bottom:26px}
+.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:26px 0 18px;flex-wrap:wrap}
+.brand h1{
+  margin:0; font-size:26px; font-weight:800; letter-spacing:-.03em;
+}
+.brand .sub{color:var(--mist);font-size:12.5px;letter-spacing:.14em;margin-top:3px}
+.wave-pick{display:flex;align-items:center;gap:8px}
+.wave-pick label{white-space:nowrap;margin:0}
+.wave-pick select{
+  background:var(--sea); color:var(--foam); border:1px solid var(--line);
+  border-radius:7px; padding:8px 11px; font-family:var(--sans); font-size:13.5px; max-width:260px;
+}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap}
+nav.tabs button{
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--mist); font-family:var(--sans); font-size:14.5px; font-weight:600;
+  padding:9px 15px; cursor:pointer; letter-spacing:.02em;
+}
+nav.tabs button:hover{color:var(--foam)}
+nav.tabs button[aria-selected="true"]{color:var(--coral);border-bottom-color:var(--coral)}
+nav.tabs button:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px}
+
+/* ---------- generic ---------- */
+.panel{background:var(--sea);border:1px solid var(--line-soft);border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.panel > h2{margin:0 0 4px;font-size:16.5px;font-weight:800;letter-spacing:-.01em}
+.panel > .lede{color:var(--mist);font-size:13.5px;margin:0 0 16px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--dim);font-weight:700;margin-bottom:9px}
+.hr{height:1px;background:var(--line-soft);margin:18px 0}
+.muted{color:var(--mist)}
+.tiny{font-size:12.5px}
+
+button.act{
+  background:var(--coral);color:#25100C;border:none;border-radius:7px;
+  padding:9px 16px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;
+}
+button.act:hover{filter:brightness(1.08)}
+button.ghost{
+  background:transparent;color:var(--mist);border:1px solid var(--line);border-radius:7px;
+  padding:8px 14px;font-family:var(--sans);font-size:13.5px;cursor:pointer;
+}
+button.ghost:hover{color:var(--foam);border-color:var(--dim)}
+button:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+
+input,select,textarea{
+  background:var(--ink);color:var(--foam);border:1px solid var(--line);
+  border-radius:6px;padding:8px 10px;font-family:var(--sans);font-size:14px;width:100%;
+}
+input.num-in{font-family:var(--mono);text-align:right}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--coral)}
+label.fld{display:block;font-size:12px;color:var(--mist);margin-bottom:4px;letter-spacing:.04em}
+
+/* ---------- verdict ---------- */
+.verdict{border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid}
+.verdict .vtitle{font-size:22px;font-weight:800;letter-spacing:-.025em;margin:6px 0 6px}
+.verdict .vline{font-size:14.5px;margin:0 0 14px}
+.verdict.green{background:var(--kelp-soft);border-color:#1E6E5C}
+.verdict.green .vtitle{color:var(--kelp)}
+.verdict.amber{background:var(--gold-soft);border-color:#6B5520}
+.verdict.amber .vtitle{color:var(--gold)}
+.verdict.red,.verdict.full{background:var(--coral-soft);border-color:var(--coral-deep)}
+.verdict.red .vtitle,.verdict.full .vtitle{color:var(--coral)}
+.verdict.learning,.verdict.thin,.verdict.idle{background:var(--surge);border-color:var(--line)}
+.verdict.learning .vtitle,.verdict.thin .vtitle,.verdict.idle .vtitle{color:var(--foam)}
+.vlabel{font-size:11px;letter-spacing:.22em;font-weight:700;opacity:.8}
+
+.todo{list-style:none;margin:0;padding:0}
+.todo li{position:relative;padding-left:20px;margin-bottom:6px;font-size:14px}
+.todo li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55}
+.why{background:rgba(0,0,0,.22);border-radius:8px;padding:11px 14px;margin:0 0 14px;font-size:13.5px}
+.why p{margin:0 0 5px}.why p:last-child{margin:0}
+.also{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.also .at{font-weight:700;font-size:14px;margin-bottom:3px}
+
+/* ---------- seat grid (signature) ---------- */
+.seats{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin:14px 0 10px}
+.seat{aspect-ratio:1/1.15;border-radius:4px 4px 7px 7px;border:1.5px solid var(--line);background:transparent;position:relative}
+.seat.booked{border-color:var(--coral)}
+.seat.showed{background:var(--coral);border-color:var(--coral)}
+.seat.over{border-style:dashed;border-color:var(--gold)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mist)}
+.legend i{display:inline-block;width:11px;height:12px;border-radius:3px 3px 5px 5px;border:1.5px solid var(--line);vertical-align:-2px;margin-right:5px}
+.legend i.b{border-color:var(--coral)} .legend i.s{background:var(--coral);border-color:var(--coral)}
+
+/* ---------- day strip ---------- */
+.strip{display:flex;gap:3px;margin:10px 0 8px;flex-wrap:wrap}
+.dcell{flex:1 0 22px;min-width:22px;text-align:center;border-radius:5px;padding:5px 0 4px;
+  background:var(--surge);border:1px solid transparent;font-size:10.5px;color:var(--dim)}
+.dcell .dn{font-family:var(--mono);font-size:11px;display:block;line-height:1.25}
+.dcell.learn{background:var(--line-soft)}
+.dcell.has{color:var(--foam);border-color:var(--line)}
+.dcell.today{border-color:var(--coral);color:var(--coral);background:var(--coral-soft)}
+.dcell.future{opacity:.45}
+
+/* ---------- metric cards ---------- */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.mcard{background:var(--surge);border:1px solid var(--line-soft);border-radius:10px;padding:14px 16px}
+.mcard .mk{font-size:12px;color:var(--mist);letter-spacing:.05em}
+.mcard .mv{font-family:var(--mono);font-size:27px;font-weight:700;letter-spacing:-.03em;line-height:1.25;margin:2px 0}
+.mcard .mv.g{color:var(--kelp)} .mcard .mv.a{color:var(--gold)} .mcard .mv.r{color:var(--coral)}
+.mcard .mv.n{color:#557F87}
+.mcard .mf{font-size:11.5px;color:var(--dim);font-family:var(--mono);line-height:1.55;overflow-wrap:anywhere}
+.mcard .mt{font-size:11.5px;color:var(--mist);margin-top:5px}
+.mcard .lock{font-size:11.5px;color:var(--gold);margin-top:5px}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;letter-spacing:.13em;color:var(--dim);font-weight:700;
+   padding:0 8px 8px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.tscroll{overflow-x:auto}
+.rowbtn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:15px;padding:2px 6px;font-family:var(--sans)}
+.rowbtn:hover{color:var(--coral)}
+
+/* ---------- entry row ---------- */
+.entry{display:grid;gap:10px;align-items:end}
+.entry.day{grid-template-columns:1.3fr .9fr .9fr .8fr .8fr .8fr auto}
+.entry.book{grid-template-columns:1.2fr 1.2fr 1.4fr .7fr auto}
+@media(max-width:860px){.entry.day,.entry.book{grid-template-columns:1fr 1fr}}
+
+/* ---------- copy blocks ---------- */
+.cblock{background:var(--surge);border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.chead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.chead .cl{font-weight:800;font-size:15px}
+.chead .ct{font-size:11px;letter-spacing:.14em;color:var(--coral);font-weight:700}
+.cnote{font-size:12.5px;color:var(--mist);margin:0 0 10px}
+.ctext{background:var(--ink);border:1px solid var(--line-soft);border-radius:7px;padding:13px 15px;
+  white-space:pre-wrap;font-size:13.5px;line-height:1.8;margin-bottom:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  font-size:12.5px;color:var(--foam);background:var(--sea);margin:0 6px 6px 0}
+.pill.off{color:var(--dim);text-decoration:line-through;border-style:dashed}
+.pill.on{border-color:var(--kelp);color:var(--kelp)}
+
+details{background:var(--sea);border:1px solid var(--line-soft);border-radius:8px;padding:0;margin-top:8px}
+details summary{cursor:pointer;padding:9px 14px;font-size:13px;color:var(--mist);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"為什麼 ▸ ";color:var(--dim);font-size:12px}
+details[open] summary::before{content:"為什麼 ▾ "}
+details .dbody{padding:0 14px 13px;font-size:13.5px;color:var(--foam);line-height:1.75}
+
+/* ---------- checklist ---------- */
+.chk{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px}
+.chk input{width:17px;height:17px;flex:0 0 17px;margin-top:4px;accent-color:var(--coral)}
+.chk.done span{color:var(--dim);text-decoration:line-through}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+  background:var(--coral);color:#25100C;font-weight:700;font-size:14px;
+  padding:11px 22px;border-radius:9px;opacity:0;transition:.22s;pointer-events:none;z-index:99}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.hidden{display:none}
+.warnbar{background:var(--gold-soft);border:1px solid #6B5520;color:var(--gold);
+  border-radius:9px;padding:11px 15px;font-size:13px;margin-bottom:16px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(max-width:620px){
+  .seats{grid-template-columns:repeat(8,1fr)}
+  .brand h1{font-size:21px}
+  .wrap{padding:0 14px 80px}
+}
+
+/* ---------- login gate ---------- */
+.gate{display:flex;align-items:center;justify-content:center;min-height:78vh;padding:20px 0}
+.gcard{background:var(--sea);border:1px solid var(--line-soft);border-radius:16px;
+  padding:32px 30px;width:100%;max-width:390px}
+.glogo{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.gsub{color:var(--mist);font-size:11.5px;letter-spacing:.16em;margin-top:3px;margin-bottom:20px}
+.gnote{font-size:13.5px;color:var(--mist);margin:0 0 18px;line-height:1.7}
+.gbtn{width:100%;margin-top:18px;padding:12px}
+.gwarn{font-size:12px;color:var(--gold);margin:14px 0 0;line-height:1.6}
+.gerr{font-size:13px;color:var(--coral);margin:12px 0 0;font-weight:600}
+
+/* ---------- sync badge ---------- */
+.sync{font-size:11.5px;letter-spacing:.06em;padding:3px 10px;border-radius:999px;
+  border:1px solid var(--line);color:var(--mist);white-space:nowrap}
+.sync.ok{color:var(--kelp);border-color:#1E6E5C}
+.sync.busy{color:var(--gold);border-color:#6B5520}
+.sync.warn{color:var(--coral);border-color:var(--coral-deep)}
+
+/* ---------- responsive entry grids (override inline templates) ---------- */
+@media(max-width:760px){
+  .entry{grid-template-columns:1fr 1fr !important}
+}
+@media(max-width:440px){
+  .entry{grid-template-columns:1fr !important}
+  .masthead{align-items:flex-start}
+  .wave-pick{width:100%;justify-content:space-between}
+  .wave-pick select{flex:1;max-width:none;margin-left:8px}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header id="siteHead">
+    <div class="masthead">
+      <div class="brand">
+        <h1>廣告作戰台</h1>
+        <div class="sub">序曲音樂學院 · META ADS</div>
+      </div>
+      <div class="wave-pick" id="headBar" style="display:none">
+        <span class="sync ok" id="syncBadge">已同步</span>
+        <select id="waveSelect"></select>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </header>
+  <main id="main"></main>
+</div>
+<div id="toast"></div>
+<script>
+/* ============================================================
+   廣告作戰台 — 資料層與判讀引擎
+   ============================================================ */
+
+/* ---------- 儲存 ---------- */
+var MEM = null;
+var STORE_KEY = 'xuqu_ads_v1';
+var storageOK = true;
+
+function saveState() {
+  var json = JSON.stringify(S);
+  try {
+    localStorage.setItem(STORE_KEY, json);
+  } catch (e) {
+    storageOK = false;
+    MEM = json;
+  }
+}
+
+function loadState() {
+  var raw = null;
+  try {
+    raw = localStorage.getItem(STORE_KEY);
+  } catch (e) {
+    storageOK = false;
+    raw = MEM;
+  }
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+/* ---------- 日期工具 ---------- */
+function todayISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function dayDiff(a, b) {
+  // b - a，以天為單位
+  var da = new Date(a + 'T00:00:00');
+  var db = new Date(b + 'T00:00:00');
+  return Math.round((db - da) / 86400000);
+}
+function addDays(iso, n) {
+  var d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+function shortDate(iso) {
+  if (!iso) return '—';
+  var p = iso.split('-');
+  return p[1].replace(/^0/, '') + '/' + p[2].replace(/^0/, '');
+}
+function weekdayTW(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T00:00:00');
+  return ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+}
+
+/* ---------- 數字格式 ---------- */
+function money(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return 'NT$' + Math.round(n).toLocaleString('en-US');
+}
+function pct(n, digits) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return (n * 100).toFixed(digits === undefined ? 0 : digits) + '%';
+}
+function num(n, digits) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Number(n).toFixed(digits === undefined ? 0 : digits);
+}
+
+/* ---------- 預設波次 ---------- */
+function newCampaign(name, start, end, budget) {
+  return {
+    id: 'c' + Date.now() + Math.floor(Math.random() * 1000),
+    name: name || '新的一波',
+    start: start,
+    end: end,
+    budget: budget || 10000,
+    learningDays: 4,
+    capacityWeek: 8,
+    capacityTotal: 24,
+    thresholds: {
+      msgCostGreen: 100,
+      msgCostRed: 150,
+      bookRate: 0.40,
+      showRate: 0.70,
+      freqCap: 3,
+      ctrFloor: 1.0,
+      cpmCap: 300
+    },
+    minSample: { msg: 10, show: 5, enroll: 5 },
+    decisionDays: 21,
+    days: [],
+    bookings: [],
+    checklist: {},
+    notes: ''
+  };
+}
+
+function seedState() {
+  var c = newCampaign('適性學習測驗｜8月免費', '2026-08-13', '2026-08-31', 10000);
+  return { activeId: c.id, campaigns: [c] };
+}
+
+var S = loadState() || seedState();
+if (!S.campaigns || !S.campaigns.length) S = seedState();
+
+function C() {
+  var found = null;
+  for (var i = 0; i < S.campaigns.length; i++) {
+    if (S.campaigns[i].id === S.activeId) found = S.campaigns[i];
+  }
+  if (!found) { found = S.campaigns[0]; S.activeId = found.id; }
+  return found;
+}
+
+/* ============================================================
+   判讀引擎
+   ============================================================ */
+
+function computeMetrics(c, asOf) {
+  var today = asOf || todayISO();
+  var m = {
+    today: today,
+    formulas: {}
+  };
+
+  /* --- 廣告帳：只算 start ~ today 之間有登錄的日子 --- */
+  var spend = 0, msgs = 0;
+  var cpmSum = 0, cpmN = 0, ctrSum = 0, ctrN = 0, freqLatest = null, freqDate = null;
+  var loggedDates = {};
+  for (var i = 0; i < c.days.length; i++) {
+    var d = c.days[i];
+    if (d.date > today) continue;
+    loggedDates[d.date] = true;
+    spend += Number(d.spend) || 0;
+    msgs += Number(d.msgs) || 0;
+    if (d.cpm) { cpmSum += Number(d.cpm); cpmN++; }
+    if (d.ctr) { ctrSum += Number(d.ctr); ctrN++; }
+    if (d.freq && (!freqDate || d.date >= freqDate)) { freqLatest = Number(d.freq); freqDate = d.date; }
+  }
+  m.spend = spend;
+  m.msgs = msgs;
+  m.loggedDates = loggedDates;
+  m.cpm = cpmN ? cpmSum / cpmN : null;
+  m.ctr = ctrN ? ctrSum / ctrN : null;
+  m.freq = freqLatest;
+
+  /* --- 預約名單 --- */
+  var booked = 0, dueTotal = 0, showed = 0, noshow = 0;
+  var enrollDue = 0, enrolled = 0, deciding = 0;
+  for (var j = 0; j < c.bookings.length; j++) {
+    var b = c.bookings[j];
+    if (b.bookedDate && b.bookedDate > today) continue;
+    booked++;
+    var due = b.testDate && b.testDate <= today;
+    if (due) {
+      dueTotal++;
+      if (b.status === 'showed') showed++;
+      else if (b.status === 'noshow') noshow++;
+    }
+    if (b.status === 'showed' && b.testDate) {
+      var age = dayDiff(b.testDate, today);
+      if (b.enrolled === true) { enrolled++; enrollDue++; }
+      else if (b.enrolled === false) { enrollDue++; }
+      else if (age >= c.decisionDays) { enrollDue++; }
+      else { deciding++; }
+    }
+  }
+  m.booked = booked;
+  m.dueTotal = dueTotal;
+  m.showed = showed;
+  m.noshow = noshow;
+  m.pendingTest = booked - dueTotal;
+  m.enrollDue = enrollDue;
+  m.enrolled = enrolled;
+  m.deciding = deciding;
+
+  /* --- 比率（含樣本門檻） --- */
+  /* --- 流失原因 --- */
+  var lost = { noreply: 0, timing: 0, age: 0, price: 0 };
+  for (var k = 0; k < c.days.length; k++) {
+    var dl = c.days[k].lost;
+    if (!dl || c.days[k].date > today) continue;
+    lost.noreply += Number(dl.noreply) || 0;
+    lost.timing  += Number(dl.timing)  || 0;
+    lost.age     += Number(dl.age)     || 0;
+    lost.price   += Number(dl.price)   || 0;
+  }
+  m.lost = lost;
+  m.lostTotal = lost.noreply + lost.timing + lost.age + lost.price;
+  m.lostUnknown = Math.max(0, (msgs - booked) - m.lostTotal);
+
+  m.msgCost = msgs >= 1 ? spend / msgs : null;
+  m.msgCostReady = msgs >= c.minSample.msg;
+  m.formulas.msgCost = money(spend) + ' ÷ ' + msgs + ' 則 = ' + (m.msgCost === null ? '—' : money(m.msgCost));
+
+  m.bookRate = msgs >= 1 ? booked / msgs : null;
+  m.bookRateReady = msgs >= c.minSample.msg;
+  m.formulas.bookRate = booked + ' 組 ÷ ' + msgs + ' 則 = ' + pct(m.bookRate);
+
+  m.showRate = dueTotal >= 1 ? showed / dueTotal : null;
+  m.showRateReady = dueTotal >= c.minSample.show;
+  m.formulas.showRate = showed + ' 人 ÷ ' + dueTotal + ' 筆已到期 = ' + pct(m.showRate) +
+    (m.pendingTest > 0 ? '（另有 ' + m.pendingTest + ' 筆測驗日還沒到，不列入分母）' : '');
+
+  m.enrollRate = enrollDue >= 1 ? enrolled / enrollDue : null;
+  m.enrollRateReady = enrollDue >= c.minSample.enroll;
+  m.formulas.enrollRate = enrolled + ' 人 ÷ ' + enrollDue + ' 筆已過決策期 = ' + pct(m.enrollRate) +
+    (m.deciding > 0 ? '（另有 ' + m.deciding + ' 人決策中，不列入分母）' : '');
+
+  m.costPerBooking = booked >= 1 ? spend / booked : null;
+  m.formulas.costPerBooking = money(spend) + ' ÷ ' + booked + ' 組預約 = ' + (m.costPerBooking === null ? '—' : money(m.costPerBooking));
+  m.costPerShow = showed >= 1 ? spend / showed : null;
+  m.formulas.costPerShow = money(spend) + ' ÷ ' + showed + ' 組到場 = ' + (m.costPerShow === null ? '—' : money(m.costPerShow));
+
+  m.cpa = enrolled >= 1 ? spend / enrolled : null;
+  m.formulas.cpa = money(spend) + ' ÷ ' + enrolled + ' 位 = ' + (m.cpa === null ? '—' : money(m.cpa));
+
+  /* --- 預算與檔期 --- */
+  m.budgetLeft = c.budget - spend;
+  m.dayIndex = dayDiff(c.start, today) + 1;               // 第幾天（1 起算）
+  m.totalDays = dayDiff(c.start, c.end) + 1;
+  m.daysLeft = Math.max(0, dayDiff(today, c.end) + 1);     // 含今天
+  m.suggestDaily = m.daysLeft > 0 ? m.budgetLeft / m.daysLeft : 0;
+  m.planDaily = c.budget / m.totalDays;
+  m.formulas.suggestDaily = money(m.budgetLeft) + ' ÷ 剩 ' + m.daysLeft + ' 天 = ' + money(m.suggestDaily) + '／天';
+
+  /* --- 座位進度 --- */
+  m.seatsTotal = c.capacityTotal;
+  m.seatsLeft = Math.max(0, c.capacityTotal - booked);
+  m.needPerDay = m.daysLeft > 0 ? m.seatsLeft / m.daysLeft : 0;
+  m.formulas.needPerDay = '還缺 ' + m.seatsLeft + ' 組 ÷ 剩 ' + m.daysLeft + ' 天 = 每天要進 ' + num(m.needPerDay, 1) + ' 組';
+
+  /* --- 階段 --- */
+  /* --- 決策中、待跟進 --- */
+  var queue = [];
+  for (var q = 0; q < c.bookings.length; q++) {
+    var bb = c.bookings[q];
+    if (bb.status !== 'showed' || bb.enrolled === true || bb.enrolled === false) continue;
+    if (bb.follow === 'dropped') continue;
+    queue.push({
+      id: bb.id, name: bb.name || '（未填姓名）', age: bb.age,
+      testDate: bb.testDate,
+      days: bb.testDate ? dayDiff(bb.testDate, today) : null,
+      follow: bb.follow || 'none',
+      followDate: bb.followDate || null
+    });
+  }
+  queue.sort(function (a, b) { return (b.days || 0) - (a.days || 0); });
+  m.queue = queue;
+  m.queueTodo = queue.filter(function (x) { return x.follow === 'none'; }).length;
+
+  m.beforeStart = today < c.start;
+  m.afterEnd = today > c.end;
+  m.learningUntil = addDays(c.start, c.learningDays - 1);
+  m.inLearning = !m.beforeStart && today <= m.learningUntil;
+  m.full = booked >= c.capacityTotal;
+
+  m.verdict = diagnose(c, m);
+  return m;
+}
+
+function diagnose(c, m) {
+  var t = c.thresholds;
+
+  if (m.beforeStart) {
+    return {
+      level: 'idle',
+      title: '還沒開跑',
+      line: '距離開跑還有 ' + dayDiff(m.today, c.start) + ' 天。',
+      todo: ['把「設定」頁的上線前檢查清單打勾完成', '素材、文案、訊息流程先設好', '不要提早開跑，檔期算好比較好判讀']
+    };
+  }
+
+  if (m.afterEnd) {
+    return {
+      level: 'idle',
+      title: '檔期已結束',
+      line: '這一波跑完了。到「歷史」頁把成績留下來，下一波才有比較基準。',
+      todo: ['把還沒回填的到場／報名結果補完', '在「歷史」頁看這波的每則訊息成本與每位學員成本']
+    };
+  }
+
+  if (m.full) {
+    return {
+      level: 'full',
+      title: '額滿了，去把廣告暫停',
+      line: '已收 ' + m.booked + ' 組預約，達到 ' + m.seatsTotal + ' 組上限。繼續跑只會累積約不到的名單。',
+      todo: ['到廣告管理員把廣告組暫停', '剩下的預算留給下一波', '把時間花在確認到場，不是繼續買訊息']
+    };
+  }
+
+  if (m.inLearning) {
+    return {
+      level: 'learning',
+      title: '學習期，什麼都不要動',
+      line: '第 ' + m.dayIndex + ' 天，學習期到 ' + shortDate(m.learningUntil) + ' 為止。這幾天的成本數字不算數，Meta 還在找人。',
+      todo: [
+        '不要改受眾、預算、素材、文案——改一次就重跑學習期',
+        '照常每天登錄數字，但不要看結論',
+        '每小時整點掃一次訊息收件匣'
+      ]
+    };
+  }
+
+  if (!m.msgCostReady) {
+    return {
+      level: 'thin',
+      title: '資料還不夠，先不判讀',
+      line: '目前累積 ' + m.msgs + ' 則訊息，要滿 ' + c.minSample.msg + ' 則數字才會穩定。現在的成本會亂跳。',
+      todo: ['繼續跑，繼續登錄', '每小時整點掃一次訊息收件匣']
+    };
+  }
+
+  var out = [];
+
+  // 訊息成本過高
+  if (m.msgCost > t.msgCostRed) {
+    var why = [];
+    var act = [];
+    if (m.freq !== null && m.freq >= t.freqCap) {
+      why.push('頻率 ' + num(m.freq, 1) + '（超過 ' + t.freqCap + '）：同一批家長被洗太多次了，這不是素材的錯，是受眾用完了');
+      act.push('把地點半徑從 4 公里放寬到 5 公里，這是唯一該動受眾的時機');
+    }
+    if (m.ctr !== null && m.ctr < t.ctrFloor) {
+      why.push('點擊率 ' + num(m.ctr, 2) + '%（低於 ' + t.ctrFloor + '%）：影片前 3 秒或文案前 2 行沒抓住人');
+      act.push('關掉表現最差的那一組主文案（廣告編輯裡刪掉那個文字選項，不要動廣告組）');
+    }
+    if (m.cpm !== null && m.cpm > t.cpmCap) {
+      why.push('CPM ' + money(m.cpm) + '（超過 ' + money(t.cpmCap) + '）：受眾太窄，Meta 投不出去');
+      act.push('檢查是不是誤設了興趣或性別，這波應該全部留空');
+    }
+    if (!why.length) {
+      why.push('CPM／點擊率／頻率沒填，看不出是哪一種貴。到廣告管理員抄這三個數字，10 秒。');
+      act.push('先關掉表現最差的那一組主文案');
+    }
+    out.push({
+      level: 'red',
+      title: '每則訊息成本過高',
+      line: '目前 ' + money(m.msgCost) + '，超過 ' + money(t.msgCostRed) + ' 的紅線。',
+      why: why,
+      todo: act
+    });
+  }
+
+  // 訊息→預約率過低
+  if (m.bookRateReady && m.bookRate < t.bookRate) {
+    out.push({
+      level: 'red',
+      title: '訊息進來了，但約不到人',
+      line: '訊息→預約率 ' + pct(m.bookRate) + '，低於 ' + pct(t.bookRate) + '。人是廣告帶進來的，卡在對話。',
+      why: [m.lostTotal > 0
+        ? '流失原因裡最多的是「' + (function () {
+            var r = [['未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['價格', m.lost.price]];
+            r.sort(function (a, b) { return b[1] - a[1]; });
+            return r[0][0];
+          })() + '」，先修這一項。'
+        : '還沒登記流失原因，先到「記錄」頁填幾天，才知道要修哪裡。',
+        '廣告已經把人帶到門口了，問題在門口之後。'],
+      todo: [
+        '確認廣告層級的歡迎訊息有設（不是粉專預設那則菜單）',
+        '自己用另一支手機從廣告點進去走一次完整流程',
+        '檢查是不是又在一開始就問了姓名＋年齡＋性別＋時間四個欄位',
+        '確認「這兩段都不行」這個選項還在，不要讓人只能關掉視窗'
+      ]
+    });
+  }
+
+  // 到場率過低
+  if (m.showRateReady && m.showRate < t.showRate) {
+    out.push({
+      level: 'amber',
+      title: '約到了，但人沒來',
+      line: '到場率 ' + pct(m.showRate) + '（' + m.showed + '／' + m.dueTotal + '），低於 ' + pct(t.showRate) + '。',
+      why: ['免費的東西爽約成本是零，提醒機制就是全部。'],
+      todo: [
+        '測驗前一天下午發提醒訊息，寫明日期、時間、樓層、捷運出口',
+        '預約確認完成後就邀請加 LINE，提醒才有第二條路',
+        '爽約的那幾位隔天補一則訊息問要不要改期，不要直接放掉'
+      ]
+    });
+  }
+
+  // 黃燈：成本偏高但未破紅線
+  if (m.msgCost > t.msgCostGreen && m.msgCost <= t.msgCostRed) {
+    out.push({
+      level: 'amber',
+      title: '成本偏高，但還在容忍範圍',
+      line: '目前 ' + money(m.msgCost) + '，落在 ' + money(t.msgCostGreen) + '–' + money(t.msgCostRed) + ' 之間。',
+      why: ['這個區間最容易做錯事：手癢去調設定，結果重跑學習期，反而更貴。'],
+      todo: ['觀察，不動作', '把 CPM／點擊率／頻率填進來，明天才知道往哪個方向修']
+    });
+  }
+
+  if (!out.length) {
+    return {
+      level: 'green',
+      title: '一切正常，照常跑',
+      line: '每則訊息成本 ' + money(m.msgCost) + '，訊息→預約率 ' + pct(m.bookRate) + '。都在目標內。',
+      todo: [
+        '不要動任何設定',
+        '每小時整點掃一次訊息收件匣',
+        '把昨天到場的結果回填到預約名單'
+      ]
+    };
+  }
+
+  // 取最嚴重的當主結論，其餘列為次要
+  var rank = { red: 0, amber: 1 };
+  out.sort(function (a, b) { return rank[a.level] - rank[b.level]; });
+  var main = out[0];
+  main.also = out.slice(1);
+  return main;
+}
+
+/* ============================================================
+   素材庫：文案、訊息腳本、廣告設定值
+   ============================================================ */
+
+var COPY_BLOCKS = [
+  {
+    id: 'a',
+    label: '主文案 A',
+    tag: '痛點開場',
+    note: '預期最穩。前兩行先講免費，因為影片的 offer 在第 57 秒，多數人看不到。',
+    text: '8 月底前免費：40 分鐘，幫你找出孩子適合的樂器。\n\n' +
+      '學了半年，孩子開始說「我不想練了」。\n' +
+      '這不一定是沒耐心，很多時候是樂器選錯了。\n\n' +
+      '有些孩子聽得出音高、卻坐不住；有些孩子手指靈活、但對節奏無感。同樣一個「喜歡音樂」的孩子，放在鋼琴前和放在鼓前，反應可以差很多。\n\n' +
+      '序曲的【適性學習測驗】是一場遊戲式觀察。我們針對 5–12 歲設計了一份量表，測四肢協調、律動感、辨音音高、手指靈活度，還有個性特質與音樂敏感度。結束後直接給您一份報告，當天帶走。\n\n' +
+      '不是把孩子塞進課程，是幫孩子找到他的樂器。\n\n' +
+      '📍中和興南路一段20號3F（南勢角站4號出口）\n' +
+      '8/31 前免費，9 月起每次 300 元\n' +
+      '點下方傳訊息，跟我們說孩子幾歲就好。'
+  },
+  {
+    id: 'b',
+    label: '主文案 B',
+    tag: '直球',
+    note: '最短。IG 版位通常這組表現最好。',
+    text: '8/31 前免費幫孩子找出最適合的樂器，9 月起恢復 300 元。\n\n' +
+      '40 分鐘遊戲式測驗，當天給您一份報告。\n' +
+      '我們測的是四肢協調、律動感、辨音音高、手指靈活度——這些決定了他適合鋼琴、小提琴、長笛還是爵士鼓。\n\n' +
+      '與其猜哪個好，不如讓孩子自己反應給您看。\n' +
+      '測驗當天不推銷課程，報告本身就是您帶走的東西。\n\n' +
+      '📍中和南勢角站4號出口，5–12 歲適用\n' +
+      '點下方傳訊息即可預約。'
+  },
+  {
+    id: 'c',
+    label: '主文案 C',
+    tag: '專業視角',
+    note: '篩選出比較認真的家長。轉換率通常較低但品質高。',
+    text: '8 月底前免費開放：一份給 5–12 歲孩子的樂器適性量表。\n\n' +
+      '「我的孩子有沒有音樂天分？」\n' +
+      '這題我們回答不了，也覺得不重要。\n\n' +
+      '我們能看的是另一件事：孩子面對聲音、節奏、觸鍵時的反應方式。有的先聽再動，有的先動再聽；有的對音色敏感，有的對速度敏感。這些差異，決定了他適合哪一種樂器、以及能不能撐過最枯燥的前三個月。\n\n' +
+      '每種樂器的學習門檻不一樣。我們把這件事做成一場 40 分鐘的遊戲——孩子在玩，我們在看，最後給您一份可以帶走的報告。\n\n' +
+      '8/31 前免費（9 月起 300 元）\n' +
+      '📍中和興南路一段20號3F\n' +
+      '點下方傳訊息，告訴我們孩子的年齡。'
+  }
+];
+
+var HEADLINES = [
+  '8/31 前免費｜適性學習測驗',
+  '40 分鐘，找出孩子的樂器',
+  '不是選課程，是選對樂器'
+];
+
+var DESCRIPTION = '中和南勢角站4號出口步行可達';
+
+var MSG_BLOCKS = [
+  {
+    id: 'm0',
+    label: '廣告歡迎訊息',
+    where: '設在「廣告層級」，不是粉專預設的即時回覆',
+    buttons: ['5–7 歲', '8–12 歲', '未滿 5 歲'],
+    text: '您好，這裡是序曲音樂學院 🎵\n\n' +
+      '【適性學習測驗】是一場約 40 分鐘的遊戲式觀察。我們透過幾個聽覺、節奏與手部反應的小活動，看孩子對哪一種樂器最有感覺，結束後直接給您一份報告。\n\n' +
+      '8 月底前免費（9 月起 300 元）\n\n' +
+      '先請問孩子今年幾歲？'
+  },
+  {
+    id: 'm1',
+    label: '選「5–7 歲」之後',
+    where: '這個年紀只開白天到傍晚',
+    buttons: ['下午 13:00–15:30', '傍晚 16:00–18:00', '這兩段都不行'],
+    text: '這個年紀很適合做測驗 👍\n' +
+      '這個階段我們安排在白天到傍晚，孩子精神比較好，觀察結果會準確很多。\n\n' +
+      '哪一段對您比較方便？'
+  },
+  {
+    id: 'm2',
+    label: '選「8–12 歲」之後',
+    where: '這個年紀可以開晚上 19:30',
+    buttons: ['平日下午／傍晚', '晚上 19:30 起', '我需要週末'],
+    text: '好的 👍 這個年紀時段選擇比較多。\n\n' +
+      '哪一段對您比較方便？'
+  },
+  {
+    id: 'm3',
+    label: '選完時段之後',
+    where: '整段流程唯一要打字的地方，只問一件事',
+    buttons: [],
+    text: '收到！最後只要留孩子的姓名，我們就先幫您卡住名額。\n\n' +
+      '（直接回覆姓名即可，例如：王小明）\n\n' +
+      '專人會在今天 21:30 前跟您確認確切日期與時間 🎹'
+  },
+  {
+    id: 'm4',
+    label: '選「都不行／要週末」',
+    where: '不要讓人只能關掉視窗，一定要留第三條路',
+    buttons: ['週六晚上可以', '幫我留意週六白天', '我想先了解課程'],
+    text: '沒問題，我們幫您想辦法。\n' +
+      '週六晚上 19:30 起我們也有開放，另外週六白天偶爾會有臨時空檔。'
+  },
+  {
+    id: 'm5',
+    label: '選「未滿 5 歲」',
+    where: '不是拒絕，是導向啟蒙班',
+    buttons: ['好，幫我安排', '先傳課程資訊給我'],
+    text: '了解！適性測驗開放 5 歲以上，因為需要孩子能配合完成幾個小活動。\n\n' +
+      '不過未滿 5 歲我們有【幼兒啟蒙團體班】，用唱、動、聽的方式先建立音感和節奏感——這個階段其實比急著選樂器更重要。\n\n' +
+      '想幫您安排一次觀課嗎？'
+  },
+  {
+    id: 'm6',
+    label: '舊按鈕的結尾句',
+    where: '接在「教室位置／課程項目／營業時間」三則回覆的最後，把死路變活路',
+    buttons: [],
+    text: '另外，8 月底前適性測驗免費，要幫您看看時段嗎？'
+  },
+  {
+    id: 'm7',
+    label: '預約確認後：邀請加 LINE',
+    where: '一定要等預約確認完成才發，不要在對話開頭導 LINE',
+    buttons: [],
+    text: '加 LINE 我們會在測驗前一天提醒您，測驗結果報告也會傳到 LINE。'
+  },
+  {
+    id: 'm8',
+    label: '測驗前一天：提醒訊息',
+    where: '到場率低於 70% 時，這則就是解方',
+    buttons: [],
+    text: '提醒您，明天是 ○○ 的適性學習測驗 🎵\n\n' +
+      '時間：○月○日（○）○○:○○\n' +
+      '地點：中和興南路一段20號 3 樓（南勢角站 4 號出口步行約 5 分鐘）\n\n' +
+      '大約 40 分鐘，穿好活動的衣服就可以了，不用帶任何東西。\n' +
+      '如果臨時有事需要改期，回覆這則訊息跟我們說一聲就好 🎹'
+  }
+];
+
+var AD_SETTINGS = [
+  { lv: '行銷活動', k: '目標', v: '潛在客戶開發', why: '' },
+  { lv: '行銷活動', k: '預算類型', v: '關閉行銷活動預算最佳化', why: '預算改在廣告組層級設，比較好中途觀察與暫停。' },
+  { lv: '行銷活動', k: '特殊廣告類別', v: '無', why: '' },
+  { lv: '廣告組', k: '轉換地點', v: 'Messenger', why: '' },
+  { lv: '廣告組', k: '成效目標', v: '開始對話的次數', why: '不要選「回覆」。選回覆會讓 Meta 優先找愛聊天但不預約的人。' },
+  { lv: '廣告組', k: '日預算', v: 'NT$520', why: 'NT$10,000 ÷ 19 天。設好之後不要中途調，調預算會重跑學習期。' },
+  { lv: '廣告組', k: '排程', v: '8/13 – 8/31', why: '' },
+  { lv: '廣告組', k: '地點', v: '興南路一段20號 + 4 公里', why: '刪掉大安路那個點。音樂課是每週往返的長期消費，住大安區的家長單程 25–30 分鐘，可能報名一次但撐不過三個月。更糟的是這群人會稀釋 Meta 的學習資料，讓演算法繼續找更多同類。' },
+  { lv: '廣告組', k: '地點類型', v: '居住在此地點的人', why: '預設是「最近在此地點」，會把路過、上班、觀光的人算進來。你的路過客成交率極低。' },
+  { lv: '廣告組', k: '年齡', v: '28 – 48', why: '5–12 歲孩子的家長主要落在這個區間。' },
+  { lv: '廣告組', k: '性別', v: '全部', why: '媽媽本來就會自然佔多數。手動排除男性等於砍掉會付錢的爸爸，而且縮小人口池會推高 CPM。' },
+  { lv: '廣告組', k: '詳細目標設定（興趣）', v: '留空，什麼都不要設', why: '4 公里半徑已經是最強的篩選。在小池子上再疊興趣標籤，會讓可觸及人數掉到 Meta 不願意穩定投放的程度，而且越窄的受眾 CPM 越貴。' },
+  { lv: '廣告組', k: '版位', v: '手動選擇（見下方清單）', why: '' },
+  { lv: '廣告', k: '素材', v: '補拍完成的成片（9:16 直式）', why: '' },
+  { lv: '廣告', k: '主要文字', v: 'A / B / C 三組都貼上', why: '同一組廣告內放多組文案不會分散預算，Meta 會自動組合並把預算導向表現好的組合。這是小預算唯一能做的有效測試。' },
+  { lv: '廣告', k: '標題', v: '三組都貼上', why: '' },
+  { lv: '廣告', k: '行動呼籲', v: '傳送訊息', why: '' }
+];
+
+var PLACEMENTS_ON = ['Facebook 動態', 'Facebook Reels', 'Facebook 限時動態', 'Instagram 動態', 'Instagram 限時動態', 'Instagram Reels', 'Instagram 探索', 'Messenger 收件匣'];
+var PLACEMENTS_OFF = ['Audience Network', 'Facebook 右欄', 'Facebook 搜尋結果'];
+
+var UPLOAD_WARNINGS = [
+  '關閉「自動裁切／自動調整版位」，所有版位統一用同一支 9:16',
+  '關閉「自動產生字幕」——你已經有燒死的字幕，Meta 再疊一層會打架',
+  '關閉「新增音樂」「動態文字」等自動加強功能，會蓋掉你的字幕',
+  '封面圖用「分類帽」那張。IG Reels／限動不吃自訂封面，會抓第一幀，剛好就是這個畫面'
+];
+
+var CHECKLIST = [
+  { g: '影片', items: ['商標區段已處理', '補拍 CTA 已接上（同衣服、同機位、同光線）', '結尾靜態卡 1.5–2 秒', '40–56 秒報告展示段疊上「測驗當天直接帶走這份報告」字幕', '全片聽過一次，接點無斷字'] },
+  { g: '廣告', items: ['地點只剩興南路 + 4 公里，且選「居住在此地點的人」', '年齡 28–48、性別全部、興趣留空', '版位手動，Audience Network 已取消', '自動裁切、自動字幕、音樂加強全部關閉', '三組文案、三組標題都已貼上', '日預算 NT$520、結束日 8/31'] },
+  { g: '訊息', items: ['廣告層級歡迎訊息已設（不是粉專預設那則）', '四個分支按鈕全部設完並自己測過一輪', '三個舊按鈕回覆都加了 CTA 尾句', '外出訊息已設（週一公休、週日寫「明天 14:00 前」）', '測驗時段表已確認：5–7 歲只開白天到傍晚，8–12 歲可開 19:30'] }
+];
+
+var DAILY_ROUTINE = [
+  '早上把昨天的花費和訊息數登錄進來',
+  '每小時整點掃一次訊息收件匣',
+  '把昨天到場的結果回填到預約名單'
+];
+
+/* 下一波要給 Claude 的資料清單 */
+var NEXT_WAVE_INTAKE = '我要開一波新的 Meta 廣告，以下是資料：\n\n' +
+  '1. 這波要推什麼（活動／課程／offer）：\n' +
+  '2. 檔期（開始日～結束日）：\n' +
+  '3. 總預算：\n' +
+  '4. 上一波的每則訊息成本／訊息→預約率／到場率：\n' +
+  '5. 這波產能上限（一週最多接幾組、總共幾組）：\n' +
+  '6. 有沒有新素材（影片／圖片幾支，直式還橫式，長度）：\n' +
+  '7. 開放的時段（星期幾、幾點到幾點，有沒有年齡限制）：\n' +
+  '8. offer 內容（免費還是收費、多少錢、有沒有期限）：\n' +
+  '9. 目標年齡層：\n' +
+  '10. 這波跟上一波比，有什麼改變或想測的東西：\n\n' +
+  '請給我：完整廣告設定表、三組主文案與標題、Messenger 訊息流程、這波的判讀標準（每則訊息成本紅黃綠線）。\n' +
+  '教室固定條件不用重問：中和興南路一段20號3F、南勢角站4號出口、5–12 歲為主、差異化產品是適性學習測驗、目前約 30 位學員。';
+
+/* ============================================================
+   雲端同步 + 共用密碼
+   ============================================================ */
+
+var SB_URL = 'https://wanpsjdnvkqaddzqyqyc.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhbnBzamRudmtxYWRkenF5cXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwOTAwMDYsImV4cCI6MjA5ODY2NjAwNn0.31AVXjV0O7q6MRS_9Iqn2FSRnCgo2fEYQcWK77iZjeg';
+var TOK_KEY = 'xuqu_ads_token';
+var CACHE_KEY = STORE_KEY;
+
+var TOKEN = null;
+var SRV_VERSION = 0;
+var SYNC = 'idle';      // idle | saving | saved | offline | error
+var SYNC_MSG = '';
+var AUTH = 'boot';      // boot | setup | login | ready
+var AUTH_ERR = '';
+var AUTH_BUSY = false;
+var CONFLICT = null;    // {mine, theirs, version}
+var pushTimer = null;
+var pollTimer = null;
+
+try { TOKEN = localStorage.getItem(TOK_KEY); } catch (e) { TOKEN = null; }
+
+function rpc(fn, args) {
+  return fetch(SB_URL + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(args || {})
+  }).catch(function () {
+    throw new Error('網路連不到，請確認裝置有連上網路');
+  }).then(function (r) {
+    return r.text().then(function (txt) {
+      var data = null;
+      try { data = txt ? JSON.parse(txt) : null; } catch (e) { data = txt; }
+      if (!r.ok) {
+        var msg = (data && data.message) ? data.message : ('HTTP ' + r.status);
+        if (data && data.hint) msg += '（' + data.hint + '）';
+        var err = new Error(msg); err.status = r.status; err.payload = data; throw err;
+      }
+      return data;
+    });
+  });
+}
+
+function setToken(t) {
+  TOKEN = t;
+  try { if (t) localStorage.setItem(TOK_KEY, t); else localStorage.removeItem(TOK_KEY); } catch (e) {}
+}
+
+function setSync(s, msg) { SYNC = s; SYNC_MSG = msg || ''; paintSync(); }
+
+function paintSync() {
+  var el = document.getElementById('syncBadge');
+  if (!el) return;
+  var map = {
+    idle: ['已同步', 'ok'],
+    saving: ['儲存中…', 'busy'],
+    saved: ['已儲存', 'ok'],
+    offline: ['離線，稍後重試', 'warn'],
+    error: [SYNC_MSG || '同步失敗', 'warn']
+  };
+  var v = map[SYNC] || map.idle;
+  el.textContent = v[0];
+  el.className = 'sync ' + v[1];
+}
+
+/* ---------- 同步 ---------- */
+function schedulePush() {
+  if (AUTH !== 'ready' || CONFLICT) return;
+  setSync('saving');
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(doPush, 700);
+}
+
+function doPush() {
+  if (AUTH !== 'ready' || CONFLICT) return;
+  var payload = JSON.parse(JSON.stringify(S));
+  rpc('ads_push', { tok: TOKEN, new_state: payload, base_version: SRV_VERSION })
+    .then(function (res) {
+      if (res && res.ok) {
+        SRV_VERSION = res.version;
+        setSync('saved');
+        setTimeout(function () { if (SYNC === 'saved') setSync('idle'); }, 1500);
+      } else if (res && res.reason === 'conflict') {
+        return rpc('ads_pull', { tok: TOKEN }).then(function (p) {
+          CONFLICT = { mine: payload, theirs: p.state, version: p.version };
+          setSync('error', '版本衝突');
+          render();
+        });
+      }
+    })
+    .catch(function (e) {
+      if (e.message === 'invalid_session') { signOut(true); return; }
+      setSync('offline');
+    });
+}
+
+function pullNow(silent) {
+  if (AUTH !== 'ready' || CONFLICT) return Promise.resolve();
+  return rpc('ads_pull', { tok: TOKEN }).then(function (p) {
+    if (p.version !== SRV_VERSION) {
+      SRV_VERSION = p.version;
+      if (p.state && p.state.campaigns && p.state.campaigns.length) {
+        S = p.state; saveState(); render();
+        if (!silent) toast('已載入其他裝置的更新');
+      }
+    }
+    setSync('idle');
+  }).catch(function (e) {
+    if (e.message === 'invalid_session') { signOut(true); return; }
+    setSync('offline');
+  });
+}
+
+function tick() {
+  if (AUTH !== 'ready' || CONFLICT) return;
+  if (SYNC === 'offline') doPush();   // 離線時累積的變更，恢復連線就補送
+  else pullNow(true);
+}
+
+function startPolling() {
+  clearInterval(pollTimer);
+  pollTimer = setInterval(tick, 30000);
+  window.addEventListener('focus', tick);
+  window.addEventListener('online', tick);
+}
+
+/* ---------- 啟動 ---------- */
+function boot() {
+  AUTH = 'boot';
+  renderGate();
+  if (TOKEN) {
+    rpc('ads_pull', { tok: TOKEN })
+      .then(function (p) { adoptServer(p); })
+      .catch(function () {
+        setToken(null);
+        decideGate();
+      });
+  } else {
+    decideGate();
+  }
+}
+
+function decideGate() {
+  rpc('ads_is_initialized', {})
+    .then(function (init) { AUTH = init ? 'login' : 'setup'; renderGate(); })
+    .catch(function (e) { AUTH = 'login'; AUTH_ERR = '連不上伺服器：' + e.message; renderGate(); });
+}
+
+function adoptServer(p) {
+  SRV_VERSION = p.version || 0;
+  if (p.state && p.state.campaigns && p.state.campaigns.length) {
+    S = p.state;
+  } else {
+    var cached = loadState();
+    S = (cached && cached.campaigns && cached.campaigns.length) ? cached : seedState();
+  }
+  saveState();
+  AUTH = 'ready';
+  render();
+  startPolling();
+  if (SRV_VERSION === 0) schedulePush();
+}
+
+function signOut(expired) {
+  setToken(null);
+  clearInterval(pollTimer);
+  AUTH = 'login';
+  AUTH_ERR = expired ? '登入已過期，請重新輸入密碼' : '';
+  renderGate();
+}
+
+/* ---------- 登入畫面 ---------- */
+function renderGate() {
+  var m = document.getElementById('main');
+  var head = document.getElementById('headBar');
+  if (head) head.style.display = AUTH === 'ready' ? '' : 'none';
+  var tabsEl = document.getElementById('tabs');
+  if (tabsEl) tabsEl.style.display = 'none';
+  var sh = document.getElementById('siteHead');
+  if (sh) sh.style.display = 'none';
+
+  if (AUTH === 'boot') {
+    m.innerHTML = '<div class="gate"><div class="gcard"><p class="muted" style="margin:0">連線中…</p></div></div>';
+    return;
+  }
+
+  var setup = AUTH === 'setup';
+  var h = '<div class="gate"><div class="gcard">';
+  h += '<div class="glogo">廣告作戰台</div>';
+  h += '<div class="gsub">序曲音樂學院 · META ADS</div>';
+  if (setup) {
+    h += '<p class="gnote">第一次使用，請設定一組共用密碼。之後所有裝置都用這組密碼登入。</p>';
+    h += '<label class="fld">設定密碼（至少 8 個字）</label><input type="password" id="g_pw1" autocomplete="new-password">';
+    h += '<label class="fld" style="margin-top:10px">再輸入一次</label><input type="password" id="g_pw2" autocomplete="new-password">';
+    h += '<button class="act gbtn" id="g_go">設定並開始使用</button>';
+    h += '<p class="gwarn">密碼只有你知道，我們無法幫你找回。請記在密碼管理員或安全的地方。</p>';
+  } else {
+    h += '<p class="gnote">請輸入共用密碼。</p>';
+    h += '<label class="fld">密碼</label><input type="password" id="g_pw1" autocomplete="current-password">';
+    h += '<button class="act gbtn" id="g_go">登入</button>';
+  }
+  if (AUTH_ERR) h += '<p class="gerr">' + esc(AUTH_ERR) + '</p>';
+  h += '</div></div>';
+  m.innerHTML = h;
+
+  var go = document.getElementById('g_go');
+  var p1 = document.getElementById('g_pw1');
+  var p2 = document.getElementById('g_pw2');
+  function submit() {
+    if (AUTH_BUSY) return;
+    var a = p1.value, b = p2 ? p2.value : a;
+    if (a.length < 8) { AUTH_ERR = '密碼至少要 8 個字'; renderGate(); return; }
+    if (setup && a !== b) { AUTH_ERR = '兩次輸入不一樣'; renderGate(); return; }
+    AUTH_BUSY = true; go.textContent = '處理中…'; go.disabled = true;
+    rpc(setup ? 'ads_init' : 'ads_login', { pw: a })
+      .then(function (tok) {
+        AUTH_BUSY = false;
+        if (!tok) { AUTH_ERR = '密碼不對'; renderGate(); return; }
+        AUTH_ERR = '';
+        setToken(tok);
+        return rpc('ads_pull', { tok: tok }).then(adoptServer);
+      })
+      .catch(function (e) {
+        AUTH_BUSY = false;
+        var map = {
+          bad_password: '密碼不對',
+          too_many_attempts: '嘗試太多次了，請等 15 分鐘再試',
+          password_too_short: '密碼至少要 8 個字',
+          already_initialized: '已經設定過密碼了，請直接登入',
+          not_initialized: '還沒設定密碼'
+        };
+        AUTH_ERR = map[e.message] || ('連不上伺服器：' + e.message);
+        if (e.message === 'already_initialized') AUTH = 'login';
+        renderGate();
+      });
+  }
+  go.onclick = submit;
+  [p1, p2].forEach(function (el) {
+    if (el) el.onkeydown = function (ev) { if (ev.key === 'Enter') submit(); };
+  });
+  if (p1) p1.focus();
+}
+
+/* ---------- 衝突處理 ---------- */
+function renderConflict() {
+  return '<div class="warnbar" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">' +
+    '<span style="flex:1 1 260px">另一台裝置也改過資料，兩邊對不上。要保留哪一邊？</span>' +
+    '<button class="act" id="cf_mine">用這台的</button>' +
+    '<button class="ghost" id="cf_theirs">用另一台的</button></div>';
+}
+function wireConflict() {
+  var a = document.getElementById('cf_mine');
+  var b = document.getElementById('cf_theirs');
+  if (a) a.onclick = function () {
+    var mine = CONFLICT.mine; SRV_VERSION = CONFLICT.version; CONFLICT = null;
+    S = mine; saveState(); setSync('saving'); doPush(); render();
+  };
+  if (b) b.onclick = function () {
+    S = CONFLICT.theirs; SRV_VERSION = CONFLICT.version; CONFLICT = null;
+    saveState(); setSync('idle'); render(); toast('已改用另一台的版本');
+  };
+}
+
+/* ============================================================
+   介面層
+   ============================================================ */
+
+var TAB = 'today';
+var $ = function (s) { return document.querySelector(s); };
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function toast(msg) {
+  var t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function () { t.classList.remove('show'); }, 1800);
+}
+
+function copyText(txt, label) {
+  var done = function () { toast((label || '已複製') + ' ✓'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt, done); });
+  } else {
+    fallbackCopy(txt, done);
+  }
+}
+function fallbackCopy(txt, done) {
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); }
+  catch (e) { toast('複製失敗，請手動選取'); }
+  document.body.removeChild(ta);
+}
+
+function commit() { saveState(); schedulePush(); render(); }
+
+/* ============================================================
+   render
+   ============================================================ */
+function render() {
+  if (AUTH !== 'ready') { renderGate(); return; }
+  var c = C();
+  var m = computeMetrics(c);
+
+  $('#waveSelect').innerHTML = S.campaigns.map(function (x) {
+    return '<option value="' + x.id + '"' + (x.id === S.activeId ? ' selected' : '') + '>' + esc(x.name) + '</option>';
+  }).join('');
+
+  var tabsEl = document.getElementById('tabs');
+  if (tabsEl) tabsEl.style.display = '';
+  var sh = document.getElementById('siteHead');
+  if (sh) sh.style.display = '';
+  var hb = document.getElementById('headBar');
+  if (hb) hb.style.display = '';
+  var tabs = [['today', '今天'], ['log', '記錄'], ['assets', '素材'], ['setup', '設定'], ['history', '歷史']];
+  $('#tabs').innerHTML = tabs.map(function (t) {
+    return '<button role="tab" aria-selected="' + (TAB === t[0]) + '" data-tab="' + t[0] + '">' + t[1] + '</button>';
+  }).join('');
+
+  var v = { today: viewToday, log: viewLog, assets: viewAssets, setup: viewSetup, history: viewHistory }[TAB];
+  $('#main').innerHTML = (CONFLICT ? renderConflict() : '') + v(c, m);
+  wire();
+  if (CONFLICT) wireConflict();
+  paintSync();
+}
+
+/* ---------- 今天 ---------- */
+function viewToday(c, m) {
+  var lv = m.verdict.level;
+  var labelMap = { green: '綠燈', amber: '黃燈', red: '紅燈', full: '額滿', learning: '學習期', thin: '樣本不足', idle: '休止' };
+
+  var h = '';
+
+  /* 判定 */
+  h += '<div class="verdict ' + lv + '">';
+  h += '<div class="vlabel">' + (labelMap[lv] || '') + '　第 ' + Math.max(0, m.dayIndex) + ' / ' + m.totalDays + ' 天</div>';
+  h += '<div class="vtitle">' + esc(m.verdict.title) + '</div>';
+  h += '<p class="vline">' + esc(m.verdict.line) + '</p>';
+  if (m.verdict.why && m.verdict.why.length) {
+    h += '<div class="why">' + m.verdict.why.map(function (w) { return '<p>' + esc(w) + '</p>'; }).join('') + '</div>';
+  }
+  h += '<div class="eyebrow" style="margin-bottom:7px">現在該做的事</div>';
+  h += '<ul class="todo">' + m.verdict.todo.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+  if (m.verdict.also && m.verdict.also.length) {
+    h += '<div class="also"><div class="eyebrow">同時還有</div>';
+    m.verdict.also.forEach(function (a) {
+      h += '<div class="at">' + esc(a.title) + '</div>';
+      h += '<p class="tiny muted" style="margin:0 0 8px">' + esc(a.line) + '</p>';
+      h += '<ul class="todo">' + a.todo.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+
+  /* 座位表 */
+  var seats = '';
+  var showedN = m.showed, bookedN = m.booked;
+  for (var i = 0; i < Math.max(c.capacityTotal, bookedN); i++) {
+    var cls = 'seat';
+    if (i < showedN) cls += ' showed';
+    else if (i < bookedN) cls += ' booked';
+    if (i >= c.capacityTotal) cls += ' over';
+    seats += '<div class="' + cls + '"></div>';
+  }
+  h += '<div class="panel">';
+  h += '<div class="eyebrow">測驗座位</div>';
+  h += '<h2><span class="num">' + bookedN + '</span> / ' + c.capacityTotal + ' 組已預約，其中 <span class="num">' + showedN + '</span> 組已到場</h2>';
+  h += '<div class="seats">' + seats + '</div>';
+  h += '<div class="legend"><span><i class="s"></i>已到場</span><span><i class="b"></i>已預約，還沒到</span><span><i></i>空位</span></div>';
+  h += '<p class="tiny muted" style="margin:12px 0 0">' + esc(m.formulas.needPerDay) + '</p>';
+
+  /* 日期條 */
+  var strip = '';
+  for (var d = 0; d < m.totalDays; d++) {
+    var iso = addDays(c.start, d);
+    var cls2 = 'dcell';
+    if (d < c.learningDays) cls2 += ' learn';
+    if (m.loggedDates[iso]) cls2 += ' has';
+    if (iso === m.today) cls2 += ' today';
+    if (iso > m.today) cls2 += ' future';
+    strip += '<div class="' + cls2 + '" title="' + iso + '"><span class="dn">' + shortDate(iso).split('/')[1] + '</span>' + weekdayTW(iso) + '</div>';
+  }
+  h += '<div class="hr"></div><div class="eyebrow">檔期　前 ' + c.learningDays + " 天為學習期</div>";
+  h += '<div class="strip">' + strip + '</div>';
+  h += '</div>';
+
+  /* 指標卡 */
+  var t = c.thresholds;
+  function card(k, val, tone, formula, tail, locked) {
+    return '<div class="mcard"><div class="mk">' + k + '</div>' +
+      '<div class="mv ' + (locked ? 'n' : tone) + '">' + val + '</div>' +
+      '<div class="mf">' + esc(formula) + '</div>' +
+      (locked ? '<div class="lock">' + esc(locked) + '</div>' : (tail ? '<div class="mt">' + esc(tail) + '</div>' : '')) +
+      '</div>';
+  }
+  var tone1 = m.msgCost === null ? 'n' : (m.msgCost > t.msgCostRed ? 'r' : (m.msgCost > t.msgCostGreen ? 'a' : 'g'));
+  var tone2 = m.bookRate === null ? 'n' : (m.bookRate < t.bookRate ? 'r' : 'g');
+  var tone3 = m.showRate === null ? 'n' : (m.showRate < t.showRate ? 'a' : 'g');
+
+  h += '<div class="panel"><div class="eyebrow">指標　結論下面就是算式</div><div class="mgrid">';
+  h += card('每則訊息成本', m.msgCost === null ? '—' : money(m.msgCost), tone1, m.formulas.msgCost,
+    '目標 <' + money(t.msgCostGreen) + '　紅線 ' + money(t.msgCostRed),
+    m.msgCostReady ? null : '樣本不足：要滿 ' + c.minSample.msg + ' 則訊息才判讀');
+  h += card('訊息 → 預約', m.bookRate === null ? '—' : pct(m.bookRate), tone2, m.formulas.bookRate,
+    '目標 > ' + pct(t.bookRate),
+    m.bookRateReady ? null : '樣本不足：要滿 ' + c.minSample.msg + ' 則訊息才判讀');
+  h += card('預約 → 到場', m.showRate === null ? '—' : pct(m.showRate), tone3, m.formulas.showRate,
+    '目標 > ' + pct(t.showRate),
+    m.showRateReady ? null : '樣本不足：要滿 ' + c.minSample.show + ' 筆已到期預約才判讀');
+  h += card('到場 → 報名', m.enrollRate === null ? '—' : pct(m.enrollRate), 'g', m.formulas.enrollRate,
+    '決策期抓 ' + c.decisionDays + ' 天',
+    m.enrollRateReady ? null : '樣本不足：要滿 ' + c.minSample.enroll + ' 筆已過決策期才判讀');
+  h += card('每組預約成本', m.costPerBooking === null ? '—' : money(m.costPerBooking), 'g', m.formulas.costPerBooking,
+    '當天就結算得出來', m.booked >= 1 ? null : '還沒有預約');
+  h += card('每組到場成本', m.costPerShow === null ? '—' : money(m.costPerShow), 'g', m.formulas.costPerShow,
+    '決策落後時看這個', m.showed >= 1 ? null : '還沒有人到場');
+  h += card('每位學員成本', m.cpa === null ? '—' : money(m.cpa), 'g', m.formulas.cpa, '報名 ' + m.enrolled + ' 位',
+    m.enrolled >= 1 ? null : '還沒有人報名');
+  h += card('剩餘預算', money(m.budgetLeft), 'g', money(c.budget) + ' − ' + money(m.spend) + ' = ' + money(m.budgetLeft),
+    m.formulas.suggestDaily + '（參考值，改日預算會重跑學習期，非必要別動）');
+  h += '</div></div>';
+
+  /* 廣告健檢 */
+  h += '<div class="panel"><div class="eyebrow">選填的三個數字　填了才知道成本高是「哪一種高」</div><div class="mgrid">';
+  h += card('CPM', m.cpm === null ? '未填' : money(m.cpm), m.cpm === null ? 'n' : (m.cpm > t.cpmCap ? 'a' : 'g'),
+    m.cpm === null ? '到廣告管理員抄一下' : '上限參考 ' + money(t.cpmCap), m.cpm > t.cpmCap ? '偏高＝受眾太窄' : '');
+  h += card('點擊率 CTR', m.ctr === null ? '未填' : num(m.ctr, 2) + '%', m.ctr === null ? 'n' : (m.ctr < t.ctrFloor ? 'a' : 'g'),
+    m.ctr === null ? '到廣告管理員抄一下' : '下限參考 ' + t.ctrFloor + '%', m.ctr !== null && m.ctr < t.ctrFloor ? '偏低＝影片或前兩行沒抓住人' : '');
+  h += card('頻率', m.freq === null ? '未填' : num(m.freq, 2), m.freq === null ? 'n' : (m.freq >= t.freqCap ? 'a' : 'g'),
+    m.freq === null ? '到廣告管理員抄一下' : '上限參考 ' + t.freqCap, m.freq !== null && m.freq >= t.freqCap ? '偏高＝受眾被洗太多次，該放寬半徑' : '');
+  h += '</div></div>';
+
+  /* 決策中，待跟進 */
+  if (m.queue.length) {
+    h += '<div class="panel"><div class="eyebrow">決策中　' +
+      (m.queueTodo ? '<span style="color:var(--coral)">' + m.queueTodo + ' 位還沒聯絡</span>' : '全部都聯絡過了') + '</div>';
+    h += '<h2>' + m.queue.length + ' 位到場過但還沒決定</h2>';
+    h += '<p class="lede">廣告費已經花掉了，這些是成本最低的潛在學員。課表定下來的那一週最適合聯絡。</p>';
+    h += '<div class="tscroll"><table><thead><tr><th>姓名</th><th style="text-align:right">年齡</th>' +
+      '<th>測驗日</th><th style="text-align:right">已過</th><th>跟進</th></tr></thead><tbody>';
+    m.queue.forEach(function (q) {
+      var late = q.days !== null && q.days >= 14 && q.follow === 'none';
+      h += '<tr' + (late ? ' style="color:var(--gold)"' : '') + '>';
+      h += '<td>' + esc(q.name) + '</td>';
+      h += '<td class="n">' + (q.age || '—') + '</td>';
+      h += '<td class="num">' + shortDate(q.testDate) + '</td>';
+      h += '<td class="n">' + (q.days === null ? '—' : q.days + ' 天') + '</td>';
+      h += '<td><select data-follow="' + q.id + '" style="width:auto;padding:4px 8px;font-size:13px">' +
+        '<option value="none"' + (q.follow === 'none' ? ' selected' : '') + '>未聯絡</option>' +
+        '<option value="contacted"' + (q.follow === 'contacted' ? ' selected' : '') + '>已聯絡</option>' +
+        '<option value="replied"' + (q.follow === 'replied' ? ' selected' : '') + '>已回覆</option>' +
+        '<option value="dropped"' + (q.follow === 'dropped' ? ' selected' : '') + '>放棄追蹤</option>' +
+        '</select>' + (q.followDate ? '<span class="tiny muted"> ' + shortDate(q.followDate) + '</span>' : '') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div></div>';
+  }
+
+  /* 流失原因 */
+  var leaked = m.msgs - m.booked;
+  if (leaked > 0) {
+    h += '<div class="panel"><div class="eyebrow">流失原因　在「記錄」頁登記</div>';
+    h += '<h2>' + leaked + ' 則訊息沒有變成預約</h2>';
+    if (m.lostTotal === 0) {
+      h += '<p class="lede">還沒有登記任何原因。不知道人是為什麼走的，就只能猜。每天花 30 秒在「記錄」頁填一下。</p>';
+    } else {
+      var rows = [['未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['嫌貴／問價後消失', m.lost.price]];
+      if (m.lostUnknown > 0) rows.push(['未登記', m.lostUnknown]);
+      h += '<div class="tscroll"><table><thead><tr><th>原因</th><th style="text-align:right">人數</th><th style="text-align:right">佔流失</th></tr></thead><tbody>';
+      rows.forEach(function (r) {
+        h += '<tr><td>' + r[0] + '</td><td class="n">' + r[1] + '</td><td class="n">' +
+          (leaked ? Math.round(100 * r[1] / leaked) + '%' : '—') + '</td></tr>';
+      });
+      h += '</tbody></table></div>';
+      var top = rows.slice(0, 4).sort(function (a, b) { return b[1] - a[1]; })[0];
+      if (top && top[1] > 0 && top[1] / leaked >= 0.4) {
+        var fix = {
+          '未回覆': '回覆速度是關鍵。平日每小時整點掃一次收件匣，並補上 3 小時與 20 小時的挽回訊息（超過 24 小時就發不出去了）。',
+          '時段不合': '時段開得不夠，或開的時段跟家長的作息對不上。先看是哪個年齡層在抱怨，再決定加開哪一段。',
+          '年齡不符': '廣告把不對的人帶進來了。文案第一行要寫清楚適用年齡，讓不符合的人不要點。',
+          '嫌貴／問價後消失': '價格沒有在廣告文案裡講清楚，篩選成本落到你的人力上。把價格前置到文案第一行。'
+        }[top[0]];
+        h += '<div class="why" style="margin-top:14px"><p><strong>' + top[0] + '</strong> 佔了流失的 ' +
+          Math.round(100 * top[1] / leaked) + '%。</p><p>' + esc(fix) + '</p></div>';
+      }
+    }
+    h += '</div>';
+  }
+
+  /* 每日例行 */
+  h += '<div class="panel"><div class="eyebrow">每天只做這三件事</div><ul class="todo">' +
+    DAILY_ROUTINE.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
+    '</ul><p class="tiny muted" style="margin:10px 0 0">其他什麼都不要動。</p></div>';
+
+  return h;
+}
+
+function lostLabel(l) {
+  if (!l) return '—';
+  var parts = [];
+  if (l.noreply) parts.push('未回 ' + l.noreply);
+  if (l.timing)  parts.push('時段 ' + l.timing);
+  if (l.age)     parts.push('年齡 ' + l.age);
+  if (l.price)   parts.push('價格 ' + l.price);
+  return parts.length ? parts.join('、') : '—';
+}
+
+/* ---------- 記錄 ---------- */
+function viewLog(c, m) {
+  var h = '';
+
+  /* 每日廣告 */
+  h += '<div class="panel">';
+  h += '<h2>每日廣告數字</h2>';
+  h += '<p class="lede">前三個必填，後三個選填但強烈建議——沒有它們，成本高的時候看不出是哪一種高。</p>';
+  h += '<div class="entry day">';
+  h += '<div><label class="fld">日期</label><input type="date" id="d_date" value="' + todayISO() + '"></div>';
+  h += '<div><label class="fld">花費 NT$</label><input class="num-in" id="d_spend" inputmode="decimal" placeholder="520"></div>';
+  h += '<div><label class="fld">訊息數</label><input class="num-in" id="d_msgs" inputmode="numeric" placeholder="6"></div>';
+  h += '<div><label class="fld">CPM</label><input class="num-in" id="d_cpm" inputmode="decimal" placeholder="選填"></div>';
+  h += '<div><label class="fld">CTR %</label><input class="num-in" id="d_ctr" inputmode="decimal" placeholder="選填"></div>';
+  h += '<div><label class="fld">頻率</label><input class="num-in" id="d_freq" inputmode="decimal" placeholder="選填"></div>';
+  h += '<div><button class="act" id="addDay">記錄</button></div>';
+  h += '</div>';
+  h += '<div class="eyebrow" style="margin-top:16px">這些訊息為什麼沒約成？（選填，但填了才知道要修哪裡）</div>';
+  h += '<div class="entry" style="grid-template-columns:repeat(4,1fr)">';
+  h += '<div><label class="fld">未回覆</label><input class="num-in" id="l_noreply" inputmode="numeric" placeholder="0"></div>';
+  h += '<div><label class="fld">時段不合</label><input class="num-in" id="l_timing" inputmode="numeric" placeholder="0"></div>';
+  h += '<div><label class="fld">年齡不符</label><input class="num-in" id="l_age" inputmode="numeric" placeholder="0"></div>';
+  h += '<div><label class="fld">嫌貴／問價後消失</label><input class="num-in" id="l_price" inputmode="numeric" placeholder="0"></div>';
+  h += '</div>';
+
+  var days = c.days.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  if (days.length) {
+    h += '<div class="hr"></div><div class="tscroll"><table><thead><tr>' +
+      '<th>日期</th><th style="text-align:right">花費</th><th style="text-align:right">訊息</th>' +
+      '<th style="text-align:right">單則成本</th><th style="text-align:right">CPM</th><th style="text-align:right">CTR</th><th style="text-align:right">頻率</th><th>流失</th><th></th>' +
+      '</tr></thead><tbody>';
+    days.forEach(function (d) {
+      var cost = d.msgs ? (d.spend / d.msgs) : null;
+      h += '<tr>' +
+        '<td class="num">' + shortDate(d.date) + '（' + weekdayTW(d.date) + '）</td>' +
+        '<td class="n">' + money(d.spend) + '</td>' +
+        '<td class="n">' + d.msgs + '</td>' +
+        '<td class="n">' + (cost === null ? '—' : money(cost)) + '</td>' +
+        '<td class="n">' + (d.cpm ? money(d.cpm) : '—') + '</td>' +
+        '<td class="n">' + (d.ctr ? num(d.ctr, 2) + '%' : '—') + '</td>' +
+        '<td class="n">' + (d.freq ? num(d.freq, 2) : '—') + '</td>' +
+        '<td class="tiny muted">' + lostLabel(d.lost) + '</td>' +
+        '<td style="text-align:right"><button class="rowbtn" data-delday="' + d.date + '" title="刪除">✕</button></td>' +
+        '</tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="hr"></div><p class="tiny muted">還沒有任何記錄。開跑後每天早上花 30 秒把昨天的數字打進來。</p>';
+  }
+  h += '</div>';
+
+  /* 預約名單 */
+  h += '<div class="panel">';
+  h += '<h2>預約名單</h2>';
+  h += '<p class="lede">這份名單同時是你的測驗時段表。到場率只算「測驗日已經過了」的那些，所以剛預約還沒到測驗日的人不會拉低數字。</p>';
+  h += '<div class="entry book">';
+  h += '<div><label class="fld">預約日</label><input type="date" id="b_booked" value="' + todayISO() + '"></div>';
+  h += '<div><label class="fld">測驗日</label><input type="date" id="b_test" value="' + addDays(todayISO(), 3) + '"></div>';
+  h += '<div><label class="fld">孩子姓名</label><input id="b_name" placeholder="王小明"></div>';
+  h += '<div><label class="fld">年齡</label><input class="num-in" id="b_age" inputmode="numeric" placeholder="7"></div>';
+  h += '<div><button class="act" id="addBook">新增</button></div>';
+  h += '</div>';
+
+  var bs = c.bookings.slice().sort(function (a, b) { return (a.testDate || '') < (b.testDate || '') ? 1 : -1; });
+  if (bs.length) {
+    h += '<div class="hr"></div><div class="tscroll"><table><thead><tr>' +
+      '<th>測驗日</th><th>姓名</th><th style="text-align:right">年齡</th><th>到場</th><th>報名</th><th></th>' +
+      '</tr></thead><tbody>';
+    bs.forEach(function (b) {
+      var due = b.testDate && b.testDate <= m.today;
+      h += '<tr>';
+      h += '<td class="num">' + shortDate(b.testDate) + '（' + weekdayTW(b.testDate) + '）' +
+        (due ? '' : '<span class="tiny muted"> 未到期</span>') + '</td>';
+      h += '<td>' + esc(b.name || '—') + '</td>';
+      h += '<td class="n">' + (b.age || '—') + '</td>';
+      h += '<td><select data-status="' + b.id + '" style="width:auto;padding:4px 8px;font-size:13px">' +
+        '<option value="pending"' + (b.status === 'pending' ? ' selected' : '') + '>待確認</option>' +
+        '<option value="showed"' + (b.status === 'showed' ? ' selected' : '') + '>已到場</option>' +
+        '<option value="noshow"' + (b.status === 'noshow' ? ' selected' : '') + '>爽約</option>' +
+        '</select></td>';
+      h += '<td><select data-enroll="' + b.id + '" style="width:auto;padding:4px 8px;font-size:13px"' +
+        (b.status === 'showed' ? '' : ' disabled') + '>' +
+        '<option value=""' + (b.enrolled === null || b.enrolled === undefined ? ' selected' : '') + '>未定</option>' +
+        '<option value="yes"' + (b.enrolled === true ? ' selected' : '') + '>已報名</option>' +
+        '<option value="no"' + (b.enrolled === false ? ' selected' : '') + '>沒報名</option>' +
+        '</select></td>';
+      h += '<td style="text-align:right"><button class="rowbtn" data-delbook="' + b.id + '" title="刪除">✕</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+    h += '<p class="tiny muted" style="margin:12px 0 0">已預約 ' + m.booked + ' 組｜測驗日已過 ' + m.dueTotal +
+      ' 組｜到場 ' + m.showed + '｜爽約 ' + m.noshow + '｜還沒到測驗日 ' + m.pendingTest +
+      '｜報名 ' + m.enrolled + '｜決策中 ' + m.deciding + '</p>';
+  } else {
+    h += '<div class="hr"></div><p class="tiny muted">還沒有預約。每接到一組就打一列，大約 15 秒。</p>';
+  }
+  h += '</div>';
+
+  return h;
+}
+
+/* ---------- 素材 ---------- */
+function viewAssets(c, m) {
+  var h = '';
+  h += '<div class="panel"><h2>主文案</h2>' +
+    '<p class="lede">三組全部貼進同一則廣告的「主要文字」欄位（點「新增文字選項」）。這不會分散預算，Meta 會自動組合並把錢導向表現好的組合。</p>';
+  COPY_BLOCKS.forEach(function (b) {
+    h += '<div class="cblock">';
+    h += '<div class="chead"><span class="cl">' + esc(b.label) + '</span><span class="ct">' + esc(b.tag) + '</span></div>';
+    h += '<p class="cnote">' + esc(b.note) + '</p>';
+    h += '<div class="ctext">' + esc(b.text) + '</div>';
+    h += '<div class="btns"><button class="ghost" data-copy="copy_' + b.id + '">複製這組</button></div>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  h += '<div class="panel"><h2>標題與描述</h2><p class="lede">標題三組都新增，描述一組即可。</p>';
+  h += '<div class="cblock"><div class="chead"><span class="cl">標題</span></div><div class="ctext">' +
+    esc(HEADLINES.join('\n')) + '</div><div class="btns"><button class="ghost" data-copy="headlines">複製三組</button></div></div>';
+  h += '<div class="cblock"><div class="chead"><span class="cl">描述</span></div><div class="ctext">' +
+    esc(DESCRIPTION) + '</div><div class="btns"><button class="ghost" data-copy="desc">複製</button></div></div>';
+  h += '<p class="tiny muted">行動呼籲按鈕選「傳送訊息」。</p></div>';
+
+  h += '<div class="panel"><h2>Messenger 訊息流程</h2>' +
+    '<p class="lede">核心原則：自動回覆不是客服，是預約機器。一次只問一件事，優先給按鈕、不要求打字。價格類問題不正面回答，改成「測驗當天會依孩子的結果給你完整建議」。</p>';
+  MSG_BLOCKS.forEach(function (b) {
+    h += '<div class="cblock">';
+    h += '<div class="chead"><span class="cl">' + esc(b.label) + '</span></div>';
+    h += '<p class="cnote">' + esc(b.where) + '</p>';
+    h += '<div class="ctext">' + esc(b.text) + '</div>';
+    if (b.buttons.length) {
+      h += '<div style="margin-bottom:10px">' + b.buttons.map(function (x) {
+        return '<span class="pill">' + esc(x) + '</span>';
+      }).join('') + '</div>';
+    }
+    h += '<div class="btns"><button class="ghost" data-copy="msg_' + b.id + '">複製訊息</button>' +
+      (b.buttons.length ? '<button class="ghost" data-copy="btn_' + b.id + '">複製按鈕文字</button>' : '') + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+/* ---------- 設定 ---------- */
+function viewSetup(c, m) {
+  var h = '';
+
+  /* 波次基本設定 */
+  h += '<div class="panel"><h2>這一波的基本設定</h2>';
+  h += '<div class="entry" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr">';
+  h += '<div><label class="fld">波次名稱</label><input id="s_name" value="' + esc(c.name) + '"></div>';
+  h += '<div><label class="fld">開始</label><input type="date" id="s_start" value="' + c.start + '"></div>';
+  h += '<div><label class="fld">結束</label><input type="date" id="s_end" value="' + c.end + '"></div>';
+  h += '<div><label class="fld">總預算</label><input class="num-in" id="s_budget" value="' + c.budget + '"></div>';
+  h += '<div><label class="fld">座位上限</label><input class="num-in" id="s_cap" value="' + c.capacityTotal + '"></div>';
+  h += '<div><label class="fld">學習期天數</label><input class="num-in" id="s_learn" value="' + c.learningDays + '"></div>';
+  h += '</div>';
+  h += '<div class="btns" style="margin-top:14px"><button class="act" id="saveCfg">儲存</button>' +
+    '<button class="ghost" id="newWave">開一個新波次</button>' +
+    '<button class="ghost" id="delWave">刪除這一波</button></div>';
+  h += '<p class="tiny muted" style="margin:12px 0 0">目前日預算基準 ' + money(m.planDaily) + '（總預算 ÷ ' + m.totalDays + ' 天）。</p>';
+  h += '</div>';
+
+  /* 判讀門檻 */
+  h += '<div class="panel"><h2>判讀門檻</h2><p class="lede">預設值就是我們談好的標準。除非你有新的數據基準，否則不要改。</p>';
+  h += '<div class="entry" style="grid-template-columns:repeat(3,1fr)">';
+  h += '<div><label class="fld">訊息成本 綠線 NT$</label><input class="num-in" id="t_g" value="' + c.thresholds.msgCostGreen + '"></div>';
+  h += '<div><label class="fld">訊息成本 紅線 NT$</label><input class="num-in" id="t_r" value="' + c.thresholds.msgCostRed + '"></div>';
+  h += '<div><label class="fld">訊息→預約 下限 %</label><input class="num-in" id="t_b" value="' + Math.round(c.thresholds.bookRate * 100) + '"></div>';
+  h += '<div><label class="fld">預約→到場 下限 %</label><input class="num-in" id="t_s" value="' + Math.round(c.thresholds.showRate * 100) + '"></div>';
+  h += '<div><label class="fld">頻率上限</label><input class="num-in" id="t_f" value="' + c.thresholds.freqCap + '"></div>';
+  h += '<div><label class="fld">決策期天數</label><input class="num-in" id="t_d" value="' + c.decisionDays + '"></div>';
+  h += '</div>';
+  h += '<p class="tiny muted" style="margin:10px 0 0">決策期建議設 21 天。家長多半要等課表定案才會決定，設 7 天會讓「到場→報名」長期顯示假的低數字。</p>';
+  h += '<div class="entry" style="display:none">';
+  h += '</div>';
+  h += '<div class="btns" style="margin-top:14px"><button class="act" id="saveTh">儲存門檻</button></div></div>';
+
+  /* 廣告管理員設定表 */
+  h += '<div class="panel"><h2>廣告管理員設定表</h2><p class="lede">照抄即可。不確定為什麼的，展開看理由。</p>';
+  h += '<div class="tscroll"><table><thead><tr><th>層級</th><th>欄位</th><th>設定值</th></tr></thead><tbody>';
+  AD_SETTINGS.forEach(function (r) {
+    h += '<tr><td class="tiny muted">' + esc(r.lv) + '</td><td>' + esc(r.k) + '</td><td><strong>' + esc(r.v) + '</strong>' +
+      (r.why ? '<details><summary></summary><div class="dbody">' + esc(r.why) + '</div></details>' : '') +
+      '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+
+  h += '<div class="hr"></div><div class="eyebrow">版位　手動選擇</div>';
+  h += '<div>' + PLACEMENTS_ON.map(function (p) { return '<span class="pill on">' + esc(p) + '</span>'; }).join('') + '</div>';
+  h += '<div style="margin-top:6px">' + PLACEMENTS_OFF.map(function (p) { return '<span class="pill off">' + esc(p) + '</span>'; }).join('') + '</div>';
+  h += '<p class="tiny muted" style="margin:8px 0 0">Audience Network 是第三方 App 廣告，誤觸率高、訊息品質差。</p>';
+
+  h += '<div class="hr"></div><div class="eyebrow">上傳素材時必須關掉的東西</div>';
+  h += '<ul class="todo">' + UPLOAD_WARNINGS.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
+  h += '</div>';
+
+  /* 檢查清單 */
+  h += '<div class="panel"><h2>上線前檢查清單</h2>';
+  CHECKLIST.forEach(function (grp, gi) {
+    h += '<div class="eyebrow" style="margin-top:14px">' + esc(grp.g) + '</div>';
+    grp.items.forEach(function (it, ii) {
+      var key = gi + '_' + ii;
+      var done = !!c.checklist[key];
+      h += '<label class="chk' + (done ? ' done' : '') + '"><input type="checkbox" data-chk="' + key + '"' + (done ? ' checked' : '') + '><span>' + esc(it) + '</span></label>';
+    });
+  });
+  h += '</div>';
+
+  /* 下一波 */
+  h += '<div class="panel"><h2>下一波要開廣告時</h2>';
+  h += '<p class="lede">把下面這段複製貼給 Claude，它就知道要問什麼、也不用重新診斷你的教室狀況。</p>';
+  h += '<div class="ctext">' + esc(NEXT_WAVE_INTAKE) + '</div>';
+  h += '<div class="btns"><button class="ghost" data-copy="intake">複製這段</button></div></div>';
+
+  /* 帳號 */
+  h += '<div class="panel"><h2>帳號</h2>';
+  h += '<p class="lede">資料存在雲端，任何裝置打開同一個網址、輸入同一組密碼就看得到。</p>';
+  h += '<div class="entry" style="grid-template-columns:1fr 1fr 1fr">';
+  h += '<div><label class="fld">目前密碼</label><input type="password" id="pw_old" autocomplete="current-password"></div>';
+  h += '<div><label class="fld">新密碼（至少 8 字）</label><input type="password" id="pw_new" autocomplete="new-password"></div>';
+  h += '<div><button class="act" id="pwGo">更改密碼</button></div>';
+  h += '</div>';
+  h += '<p class="tiny muted" style="margin:10px 0 0">改完密碼後，其他裝置需要重新登入。</p>';
+  h += '<div class="hr"></div><div class="btns"><button class="ghost" id="signOutBtn">登出這台裝置</button></div></div>';
+
+  /* 備份 */
+  h += '<div class="panel"><h2>備份與匯出</h2>';
+  h += '<p class="lede">雲端已經是主要儲存了，備份是給你留一份離線副本，或把舊的本機版資料搬進來用。</p>';
+  h += '<div class="btns"><button class="act" id="expJson">匯出備份</button>' +
+    '<button class="ghost" id="impJson">匯入舊資料</button>' +
+    '<button class="ghost" id="expCsv">匯出 CSV</button></div>';
+  h += '<input type="file" id="fileIn" accept="application/json" class="hidden"></div>';
+
+  return h;
+}
+
+/* ---------- 歷史 ---------- */
+function viewHistory(c, m) {
+  var h = '<div class="panel"><h2>各波次比較</h2>' +
+    '<p class="lede">每則訊息成本可以跨波比較；每位學員成本才是真正該看的數字，但要等報名回填完才準。</p>';
+  h += '<div class="tscroll"><table><thead><tr><th>波次</th><th>檔期</th><th style="text-align:right">花費</th>' +
+    '<th style="text-align:right">訊息</th><th style="text-align:right">單則成本</th><th style="text-align:right">預約</th>' +
+    '<th style="text-align:right">到場</th><th style="text-align:right">報名</th><th style="text-align:right">每位成本</th></tr></thead><tbody>';
+  S.campaigns.forEach(function (x) {
+    var mm = computeMetrics(x);
+    h += '<tr' + (x.id === S.activeId ? ' style="color:var(--coral)"' : '') + '>';
+    h += '<td>' + esc(x.name) + '</td>';
+    h += '<td class="num tiny">' + shortDate(x.start) + '–' + shortDate(x.end) + '</td>';
+    h += '<td class="n">' + money(mm.spend) + '</td>';
+    h += '<td class="n">' + mm.msgs + '</td>';
+    h += '<td class="n">' + (mm.msgCost === null ? '—' : money(mm.msgCost)) + '</td>';
+    h += '<td class="n">' + mm.booked + '</td>';
+    h += '<td class="n">' + mm.showed + '</td>';
+    h += '<td class="n">' + mm.enrolled + '</td>';
+    h += '<td class="n">' + (mm.cpa === null ? '—' : money(mm.cpa)) + '</td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  if (S.campaigns.length < 2) {
+    h += '<p class="tiny muted" style="margin-top:14px">只有一波，還沒得比。跑完這波後在「設定」頁開新波次，數字才有基準。</p>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ============================================================
+   事件
+   ============================================================ */
+function n(id) {
+  var el = document.getElementById(id);
+  if (!el) return null;
+  var v = parseFloat(el.value);
+  return isNaN(v) ? null : v;
+}
+function s(id) {
+  var el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function wire() {
+  var c = C();
+
+  document.querySelectorAll('#tabs button').forEach(function (b) {
+    b.onclick = function () { TAB = b.dataset.tab; render(); window.scrollTo(0, 0); };
+  });
+
+  $('#waveSelect').onchange = function (e) { S.activeId = e.target.value; commit(); };
+
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.onclick = function () {
+      var k = b.dataset.copy, txt = '', label = '已複製';
+      if (k.indexOf('copy_') === 0) {
+        COPY_BLOCKS.forEach(function (x) { if ('copy_' + x.id === k) { txt = x.text; label = x.label; } });
+      } else if (k.indexOf('msg_') === 0) {
+        MSG_BLOCKS.forEach(function (x) { if ('msg_' + x.id === k) { txt = x.text; label = x.label; } });
+      } else if (k.indexOf('btn_') === 0) {
+        MSG_BLOCKS.forEach(function (x) { if ('btn_' + x.id === k) { txt = x.buttons.join('\n'); label = '按鈕文字'; } });
+      } else if (k === 'headlines') { txt = HEADLINES.join('\n'); label = '標題'; }
+      else if (k === 'desc') { txt = DESCRIPTION; label = '描述'; }
+      else if (k === 'intake') { txt = NEXT_WAVE_INTAKE; label = '資料清單'; }
+      copyText(txt, label);
+    };
+  });
+
+  var addDayBtn = $('#addDay');
+  if (addDayBtn) addDayBtn.onclick = function () {
+    var date = s('d_date');
+    if (!date) { toast('請選日期'); return; }
+    var spend = n('d_spend'), msgs = n('d_msgs');
+    if (spend === null || msgs === null) { toast('花費和訊息數要填'); return; }
+    var lost = { noreply: n('l_noreply') || 0, timing: n('l_timing') || 0, age: n('l_age') || 0, price: n('l_price') || 0 };
+    var rec = { date: date, spend: spend, msgs: msgs, cpm: n('d_cpm'), ctr: n('d_ctr'), freq: n('d_freq'), lost: lost };
+    var idx = -1;
+    for (var i = 0; i < c.days.length; i++) if (c.days[i].date === date) idx = i;
+    if (idx >= 0) { c.days[idx] = rec; toast(shortDate(date) + ' 已更新'); }
+    else { c.days.push(rec); toast(shortDate(date) + ' 已記錄'); }
+    commit();
+  };
+
+  document.querySelectorAll('[data-delday]').forEach(function (b) {
+    b.onclick = function () {
+      var d = b.dataset.delday;
+      c.days = c.days.filter(function (x) { return x.date !== d; });
+      commit();
+    };
+  });
+
+  var addBookBtn = $('#addBook');
+  if (addBookBtn) addBookBtn.onclick = function () {
+    var bd = s('b_booked'), td = s('b_test');
+    if (!bd || !td) { toast('預約日和測驗日都要填'); return; }
+    c.bookings.push({
+      id: 'b' + Date.now() + Math.floor(Math.random() * 999),
+      bookedDate: bd, testDate: td,
+      name: s('b_name'), age: n('b_age'),
+      status: 'pending', enrolled: null
+    });
+    toast('已加入名單');
+    commit();
+  };
+
+  document.querySelectorAll('[data-status]').forEach(function (sel) {
+    sel.onchange = function () {
+      var id = sel.dataset.status;
+      c.bookings.forEach(function (b) {
+        if (b.id === id) {
+          b.status = sel.value;
+          if (b.status !== 'showed') b.enrolled = null;
+        }
+      });
+      commit();
+    };
+  });
+  document.querySelectorAll('[data-enroll]').forEach(function (sel) {
+    sel.onchange = function () {
+      var id = sel.dataset.enroll;
+      c.bookings.forEach(function (b) {
+        if (b.id === id) b.enrolled = sel.value === 'yes' ? true : (sel.value === 'no' ? false : null);
+      });
+      commit();
+    };
+  });
+  document.querySelectorAll('[data-delbook]').forEach(function (b) {
+    b.onclick = function () {
+      var id = b.dataset.delbook;
+      c.bookings = c.bookings.filter(function (x) { return x.id !== id; });
+      commit();
+    };
+  });
+
+  document.querySelectorAll('[data-follow]').forEach(function (sel) {
+    sel.onchange = function () {
+      var id = sel.dataset.follow;
+      c.bookings.forEach(function (b) {
+        if (b.id === id) {
+          b.follow = sel.value;
+          b.followDate = (sel.value === 'none') ? null : todayISO();
+        }
+      });
+      commit();
+    };
+  });
+
+  document.querySelectorAll('[data-chk]').forEach(function (cb) {
+    cb.onchange = function () { c.checklist[cb.dataset.chk] = cb.checked; commit(); };
+  });
+
+  var saveCfg = $('#saveCfg');
+  if (saveCfg) saveCfg.onclick = function () {
+    c.name = s('s_name') || c.name;
+    c.start = s('s_start'); c.end = s('s_end');
+    c.budget = n('s_budget') || c.budget;
+    c.capacityTotal = n('s_cap') || c.capacityTotal;
+    c.learningDays = n('s_learn') || c.learningDays;
+    toast('已儲存'); commit();
+  };
+  var saveTh = $('#saveTh');
+  if (saveTh) saveTh.onclick = function () {
+    c.thresholds.msgCostGreen = n('t_g') || c.thresholds.msgCostGreen;
+    c.thresholds.msgCostRed = n('t_r') || c.thresholds.msgCostRed;
+    c.thresholds.bookRate = (n('t_b') || 40) / 100;
+    c.thresholds.showRate = (n('t_s') || 70) / 100;
+    c.thresholds.freqCap = n('t_f') || c.thresholds.freqCap;
+    c.decisionDays = n('t_d') || c.decisionDays;
+    toast('門檻已更新'); commit();
+  };
+
+  var nw = $('#newWave');
+  if (nw) nw.onclick = function () {
+    var st = todayISO();
+    var x = newCampaign('新的一波', st, addDays(st, 18), 10000);
+    S.campaigns.push(x); S.activeId = x.id;
+    TAB = 'setup'; toast('已開新波次'); commit();
+  };
+  var dw = $('#delWave');
+  if (dw) dw.onclick = function () {
+    if (S.campaigns.length < 2) { toast('至少要留一波'); return; }
+    if (!confirm('確定刪除「' + c.name + '」？這筆資料會消失，無法復原。')) return;
+    S.campaigns = S.campaigns.filter(function (x) { return x.id !== c.id; });
+    S.activeId = S.campaigns[0].id;
+    commit();
+  };
+
+  var pwGo = $('#pwGo');
+  if (pwGo) pwGo.onclick = function () {
+    var o = s('pw_old'), nw = s('pw_new');
+    if (!o || nw.length < 8) { toast('新密碼至少 8 個字'); return; }
+    pwGo.disabled = true; pwGo.textContent = '處理中…';
+    rpc('ads_change_password', { tok: TOKEN, old_pw: o, new_pw: nw })
+      .then(function () { toast('密碼已更改'); render(); })
+      .catch(function (e) {
+        pwGo.disabled = false; pwGo.textContent = '更改密碼';
+        toast(e.message === 'bad_password' ? '目前密碼不對' : '改不了，請稍後再試');
+      });
+  };
+  var so = $('#signOutBtn');
+  if (so) so.onclick = function () {
+    if (!confirm('登出後這台裝置要重新輸入密碼，確定嗎？')) return;
+    rpc('ads_logout', { tok: TOKEN }).catch(function () {});
+    signOut(false);
+  };
+
+  var ej = $('#expJson');
+  if (ej) ej.onclick = function () {
+    download('廣告作戰台備份_' + todayISO() + '.json', JSON.stringify(S, null, 2), 'application/json');
+    toast('備份已下載');
+  };
+  var ec = $('#expCsv');
+  if (ec) ec.onclick = function () {
+    var rows = [['波次', '日期', '花費', '訊息數', '單則成本', 'CPM', 'CTR', '頻率']];
+    S.campaigns.forEach(function (x) {
+      x.days.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).forEach(function (d) {
+        rows.push([x.name, d.date, d.spend, d.msgs, d.msgs ? (d.spend / d.msgs).toFixed(1) : '', d.cpm || '', d.ctr || '', d.freq || '']);
+      });
+    });
+    var csv = '\uFEFF' + rows.map(function (r) {
+      return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    download('廣告每日數字_' + todayISO() + '.csv', csv, 'text/csv');
+    toast('CSV 已下載');
+  };
+  var ij = $('#impJson');
+  if (ij) ij.onclick = function () { $('#fileIn').click(); };
+  var fi = $('#fileIn');
+  if (fi) fi.onchange = function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(r.result);
+        if (!d.campaigns || !d.campaigns.length) throw new Error('格式不對');
+        if (!confirm('匯入會蓋掉目前所有資料，確定嗎？')) return;
+        S = d; toast('已匯入，正在上傳到雲端'); commit();
+      } catch (err) { toast('檔案讀不到，可能不是備份檔'); }
+    };
+    r.readAsText(f);
+  };
+}
+
+function download(name, text, mime) {
+  var blob = new Blob([text], { type: mime });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
+}
+
+boot();
+
+</script>
+</body>
+</html>
