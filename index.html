@@ -380,7 +380,7 @@ function computeMetrics(c, asOf) {
   for (var i = 0; i < c.days.length; i++) {
     var d = c.days[i];
     if (d.date > today) continue;
-    loggedDates[d.date] = true;
+    if (d.spend != null || d.msgs != null) loggedDates[d.date] = true;
     spend += Number(d.spend) || 0;
     msgs += Number(d.msgs) || 0;
     if (d.cpm) { cpmSum += Number(d.cpm); cpmN++; }
@@ -397,6 +397,7 @@ function computeMetrics(c, asOf) {
   /* --- 預約名單 --- */
   var booked = 0, dueTotal = 0, showed = 0, noshow = 0;
   var enrollDue = 0, enrolled = 0, deciding = 0;
+  var trialYes = 0, trialDone = 0;
   for (var j = 0; j < c.bookings.length; j++) {
     var b = c.bookings[j];
     if (b.bookedDate && b.bookedDate > today) continue;
@@ -409,6 +410,9 @@ function computeMetrics(c, asOf) {
     }
     if (b.status === 'showed' && b.testDate) {
       var age = dayDiff(b.testDate, today);
+      var tr = b.trial || 'none';
+      if (tr === 'booked' || tr === 'done') trialYes++;
+      if (tr === 'done') trialDone++;
       if (b.enrolled === true) { enrolled++; enrollDue++; }
       else if (b.enrolled === false) { enrollDue++; }
       else if (age >= c.decisionDays) { enrollDue++; }
@@ -423,20 +427,23 @@ function computeMetrics(c, asOf) {
   m.enrollDue = enrollDue;
   m.enrolled = enrolled;
   m.deciding = deciding;
+  m.trialYes = trialYes;
+  m.trialDone = trialDone;
 
   /* --- 比率（含樣本門檻） --- */
   /* --- 流失原因 --- */
-  var lost = { noreply: 0, timing: 0, age: 0, price: 0 };
+  var lost = { button: 0, noreply: 0, timing: 0, age: 0, price: 0 };
   for (var k = 0; k < c.days.length; k++) {
     var dl = c.days[k].lost;
     if (!dl || c.days[k].date > today) continue;
+    lost.button  += Number(dl.button)  || 0;
     lost.noreply += Number(dl.noreply) || 0;
     lost.timing  += Number(dl.timing)  || 0;
     lost.age     += Number(dl.age)     || 0;
     lost.price   += Number(dl.price)   || 0;
   }
   m.lost = lost;
-  m.lostTotal = lost.noreply + lost.timing + lost.age + lost.price;
+  m.lostTotal = lost.button + lost.noreply + lost.timing + lost.age + lost.price;
   m.lostUnknown = Math.max(0, (msgs - booked) - m.lostTotal);
 
   m.msgCost = msgs >= 1 ? spend / msgs : null;
@@ -456,6 +463,14 @@ function computeMetrics(c, asOf) {
   m.enrollRateReady = enrollDue >= c.minSample.enroll;
   m.formulas.enrollRate = enrolled + ' 人 ÷ ' + enrollDue + ' 筆已過決策期 = ' + pct(m.enrollRate) +
     (m.deciding > 0 ? '（另有 ' + m.deciding + ' 人決策中，不列入分母）' : '');
+
+  m.trialRate = showed >= 1 ? trialYes / showed : null;
+  m.trialRateReady = showed >= c.minSample.show;
+  m.formulas.trialRate = trialYes + ' 組 ÷ ' + showed + ' 組已到場 = ' + pct(m.trialRate);
+
+  m.finalRate = trialDone >= 1 ? enrolled / trialDone : null;
+  m.finalRateReady = trialDone >= c.minSample.enroll;
+  m.formulas.finalRate = enrolled + ' 位 ÷ ' + trialDone + ' 組試上 = ' + pct(m.finalRate);
 
   m.costPerBooking = booked >= 1 ? spend / booked : null;
   m.formulas.costPerBooking = money(spend) + ' ÷ ' + booked + ' 組預約 = ' + (m.costPerBooking === null ? '—' : money(m.costPerBooking));
@@ -479,6 +494,36 @@ function computeMetrics(c, asOf) {
   m.seatsLeft = Math.max(0, c.capacityTotal - booked);
   m.needPerDay = m.daysLeft > 0 ? m.seatsLeft / m.daysLeft : 0;
   m.formulas.needPerDay = '還缺 ' + m.seatsLeft + ' 組 ÷ 剩 ' + m.daysLeft + ' 天 = 每天要進 ' + num(m.needPerDay, 1) + ' 組';
+
+  /* --- 每週產能：依 testDate 分組，以 c.start 為第一週起點 --- */
+  var weeks = [];
+  var totalWeeks = Math.ceil(m.totalDays / 7);
+  var wmap = {}, wAny = false;
+  for (var wi = 0; wi < c.bookings.length; wi++) {
+    var wb = c.bookings[wi];
+    if (!wb.testDate) continue;
+    if (wb.bookedDate && wb.bookedDate > today) continue;
+    var woff = dayDiff(c.start, wb.testDate);
+    if (woff < 0) continue;
+    var wk = Math.floor(woff / 7);
+    wmap[wk] = (wmap[wk] || 0) + 1;
+    wAny = true;
+    if (wk + 1 > totalWeeks) totalWeeks = wk + 1;
+  }
+  if (wAny && c.capacityWeek) {
+    for (var wj = 0; wj < totalWeeks; wj++) {
+      var wcnt = wmap[wj] || 0;
+      weeks.push({
+        idx: wj + 1,
+        s: addDays(c.start, wj * 7),
+        e: addDays(c.start, wj * 7 + 6),
+        count: wcnt,
+        cap: c.capacityWeek,
+        over: wcnt > c.capacityWeek
+      });
+    }
+  }
+  m.weeks = weeks;
 
   /* --- 階段 --- */
   /* --- 決策中、待跟進 --- */
@@ -600,7 +645,7 @@ function diagnose(c, m) {
       line: '訊息→預約率 ' + pct(m.bookRate) + '，低於 ' + pct(t.bookRate) + '。人是廣告帶進來的，卡在對話。',
       why: [m.lostTotal > 0
         ? '流失原因裡最多的是「' + (function () {
-            var r = [['未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['價格', m.lost.price]];
+            var r = [['只按按鈕', m.lost.button], ['真人未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['價格', m.lost.price]];
             r.sort(function (a, b) { return b[1] - a[1]; });
             return r[0][0];
           })() + '」，先修這一項。'
@@ -627,6 +672,17 @@ function diagnose(c, m) {
         '預約確認完成後就邀請加 LINE，提醒才有第二條路',
         '爽約的那幾位隔天補一則訊息問要不要改期，不要直接放掉'
       ]
+    });
+  }
+
+  // 測驗 → 試上 過低（最大流失通常在這一階）
+  if (m.trialRateReady && m.trialRate !== null && m.trialRate < 0.40) {
+    out.push({
+      level: 'red',
+      title: '測驗做完了，但約不到試上',
+      line: '測驗→試上 ' + pct(m.trialRate) + '（' + m.trialYes + '／' + m.showed + '），低於 40%。',
+      why: ['這一階要繳 1,000 元訂金並綁定固定時段，家長在開學期間最容易卡在「不敢決定時間」。'],
+      todo: ['訂金照收，但把時段和訂金脫鉤——先繳訂金，時段等課表確定再排']
     });
   }
 
@@ -1240,6 +1296,27 @@ function viewToday(c, m) {
   h += '<div class="legend"><span><i class="s"></i>已到場</span><span><i class="b"></i>已預約，還沒到</span><span><i></i>空位</span></div>';
   h += '<p class="tiny muted" style="margin:12px 0 0">' + esc(m.formulas.needPerDay) + '</p>';
 
+  /* 每週產能 */
+  if (m.weeks && m.weeks.length) {
+    h += '<div class="hr"></div><div class="eyebrow">每週產能　一週最多 ' + c.capacityWeek + ' 組</div>';
+    h += '<div class="tscroll"><table><thead><tr><th>週次</th><th>測驗日區間</th>' +
+      '<th style="text-align:right">已排</th><th style="text-align:right">上限</th><th>狀態</th></tr></thead><tbody>';
+    m.weeks.forEach(function (w) {
+      var stateTxt;
+      if (w.over) stateTxt = '超收 ' + (w.count - w.cap) + ' 組';
+      else if (w.count === w.cap) stateTxt = '剛好滿';
+      else stateTxt = '還有 ' + (w.cap - w.count) + ' 個';
+      h += '<tr' + (w.over ? ' style="color:var(--gold)"' : '') + '>';
+      h += '<td>第 ' + w.idx + ' 週</td>';
+      h += '<td class="num tiny">' + shortDate(w.s) + '–' + shortDate(w.e) + '</td>';
+      h += '<td class="n">' + w.count + '</td>';
+      h += '<td class="n">' + w.cap + '</td>';
+      h += '<td' + (w.over ? ' style="font-weight:700"' : '') + '>' + stateTxt + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+
   /* 日期條 */
   var strip = '';
   for (var d = 0; d < m.totalDays; d++) {
@@ -1278,9 +1355,13 @@ function viewToday(c, m) {
   h += card('預約 → 到場', m.showRate === null ? '—' : pct(m.showRate), tone3, m.formulas.showRate,
     '目標 > ' + pct(t.showRate),
     m.showRateReady ? null : '樣本不足：要滿 ' + c.minSample.show + ' 筆已到期預約才判讀');
-  h += card('到場 → 報名', m.enrollRate === null ? '—' : pct(m.enrollRate), 'g', m.formulas.enrollRate,
-    '決策期抓 ' + c.decisionDays + ' 天',
-    m.enrollRateReady ? null : '樣本不足：要滿 ' + c.minSample.enroll + ' 筆已過決策期才判讀');
+  var toneTrial = m.trialRate === null ? 'n' : (m.trialRate < 0.40 ? 'r' : 'g');
+  h += card('測驗 → 試上', m.trialRate === null ? '—' : pct(m.trialRate), toneTrial, m.formulas.trialRate,
+    '目標 > 40%　最大流失通常在這一階',
+    m.trialRateReady ? null : '樣本不足：要滿 ' + c.minSample.show + ' 組已到場才判讀');
+  h += card('試上 → 正式', m.finalRate === null ? '—' : pct(m.finalRate), 'g', m.formulas.finalRate,
+    '正式課折抵 1,000 元訂金',
+    m.finalRateReady ? null : '樣本不足：要滿 ' + c.minSample.enroll + ' 組試上才判讀');
   h += card('每組預約成本', m.costPerBooking === null ? '—' : money(m.costPerBooking), 'g', m.formulas.costPerBooking,
     '當天就結算得出來', m.booked >= 1 ? null : '還沒有預約');
   h += card('每組到場成本', m.costPerShow === null ? '—' : money(m.costPerShow), 'g', m.formulas.costPerShow,
@@ -1335,7 +1416,7 @@ function viewToday(c, m) {
     if (m.lostTotal === 0) {
       h += '<p class="lede">還沒有登記任何原因。不知道人是為什麼走的，就只能猜。每天花 30 秒在「記錄」頁填一下。</p>';
     } else {
-      var rows = [['未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['嫌貴／問價後消失', m.lost.price]];
+      var rows = [['只按按鈕', m.lost.button], ['真人未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['嫌貴／問價後消失', m.lost.price]];
       if (m.lostUnknown > 0) rows.push(['未登記', m.lostUnknown]);
       h += '<div class="tscroll"><table><thead><tr><th>原因</th><th style="text-align:right">人數</th><th style="text-align:right">佔流失</th></tr></thead><tbody>';
       rows.forEach(function (r) {
@@ -1366,9 +1447,11 @@ function viewToday(c, m) {
   return h;
 }
 
+function emptyLost() { return { button: 0, noreply: 0, timing: 0, age: 0, price: 0 }; }
 function lostLabel(l) {
   if (!l) return '—';
   var parts = [];
+  if (l.button)  parts.push('只按 ' + l.button);
   if (l.noreply) parts.push('未回 ' + l.noreply);
   if (l.timing)  parts.push('時段 ' + l.timing);
   if (l.age)     parts.push('年齡 ' + l.age);
@@ -1385,7 +1468,7 @@ function viewLog(c, m) {
   h += '<h2>每日廣告數字</h2>';
   h += '<p class="lede">前三個必填，後三個選填但強烈建議——沒有它們，成本高的時候看不出是哪一種高。</p>';
   h += '<div class="entry day">';
-  h += '<div><label class="fld">日期</label><input type="date" id="d_date" value="' + todayISO() + '"></div>';
+  h += '<div><label class="fld">日期（預設昨天）</label><input type="date" id="d_date" value="' + addDays(todayISO(), -1) + '"></div>';
   h += '<div><label class="fld">花費 NT$</label><input class="num-in" id="d_spend" inputmode="decimal" placeholder="520"></div>';
   h += '<div><label class="fld">訊息數</label><input class="num-in" id="d_msgs" inputmode="numeric" placeholder="6"></div>';
   h += '<div><label class="fld">CPM</label><input class="num-in" id="d_cpm" inputmode="decimal" placeholder="選填"></div>';
@@ -1394,11 +1477,15 @@ function viewLog(c, m) {
   h += '<div><button class="act" id="addDay">記錄</button></div>';
   h += '</div>';
   h += '<div class="eyebrow" style="margin-top:16px">這些訊息為什麼沒約成？（選填，但填了才知道要修哪裡）</div>';
-  h += '<div class="entry" style="grid-template-columns:repeat(4,1fr)">';
-  h += '<div><label class="fld">未回覆</label><input class="num-in" id="l_noreply" inputmode="numeric" placeholder="0"></div>';
+  h += '<p class="tiny muted" style="margin:2px 0 8px">「只按按鈕」＝點了廣告按鈕但完全沒進對話；「真人未回覆」＝我們已經回訊、對方不讀不回。填完按「加入沒約成」，一天可以分多次持續累加。</p>';
+  h += '<div class="entry" style="grid-template-columns:repeat(7,1fr)">';
+  h += '<div><label class="fld">只按按鈕</label><input class="num-in" id="l_button" inputmode="numeric" placeholder="0"></div>';
+  h += '<div><label class="fld">真人未回覆</label><input class="num-in" id="l_noreply" inputmode="numeric" placeholder="0"></div>';
   h += '<div><label class="fld">時段不合</label><input class="num-in" id="l_timing" inputmode="numeric" placeholder="0"></div>';
   h += '<div><label class="fld">年齡不符</label><input class="num-in" id="l_age" inputmode="numeric" placeholder="0"></div>';
   h += '<div><label class="fld">嫌貴／問價後消失</label><input class="num-in" id="l_price" inputmode="numeric" placeholder="0"></div>';
+  h += '<div><label class="fld">日期</label><input type="date" id="l_date" value="' + addDays(todayISO(), -1) + '"></div>';
+  h += '<div style="align-self:end"><button class="act" id="addLost">加入沒約成</button></div>';
   h += '</div>';
 
   var days = c.days.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -1412,7 +1499,7 @@ function viewLog(c, m) {
       h += '<tr>' +
         '<td class="num">' + shortDate(d.date) + '（' + weekdayTW(d.date) + '）</td>' +
         '<td class="n">' + money(d.spend) + '</td>' +
-        '<td class="n">' + d.msgs + '</td>' +
+        '<td class="n">' + (d.msgs == null ? '—' : d.msgs) + '</td>' +
         '<td class="n">' + (cost === null ? '—' : money(cost)) + '</td>' +
         '<td class="n">' + (d.cpm ? money(d.cpm) : '—') + '</td>' +
         '<td class="n">' + (d.ctr ? num(d.ctr, 2) + '%' : '—') + '</td>' +
@@ -1442,7 +1529,7 @@ function viewLog(c, m) {
   var bs = c.bookings.slice().sort(function (a, b) { return (a.testDate || '') < (b.testDate || '') ? 1 : -1; });
   if (bs.length) {
     h += '<div class="hr"></div><div class="tscroll"><table><thead><tr>' +
-      '<th>測驗日</th><th>姓名</th><th style="text-align:right">年齡</th><th>到場</th><th>報名</th><th></th>' +
+      '<th>測驗日</th><th>姓名</th><th style="text-align:right">年齡</th><th>到場</th><th>試上</th><th>報名</th><th></th>' +
       '</tr></thead><tbody>';
     bs.forEach(function (b) {
       var due = b.testDate && b.testDate <= m.today;
@@ -1455,6 +1542,13 @@ function viewLog(c, m) {
         '<option value="pending"' + (b.status === 'pending' ? ' selected' : '') + '>待確認</option>' +
         '<option value="showed"' + (b.status === 'showed' ? ' selected' : '') + '>已到場</option>' +
         '<option value="noshow"' + (b.status === 'noshow' ? ' selected' : '') + '>爽約</option>' +
+        '</select></td>';
+      h += '<td><select data-trial="' + b.id + '" style="width:auto;padding:4px 8px;font-size:13px"' +
+        (b.status === 'showed' ? '' : ' disabled') + '>' +
+        '<option value="none"' + (!b.trial || b.trial === 'none' ? ' selected' : '') + '>未定</option>' +
+        '<option value="booked"' + (b.trial === 'booked' ? ' selected' : '') + '>已約試上</option>' +
+        '<option value="done"' + (b.trial === 'done' ? ' selected' : '') + '>已試上</option>' +
+        '<option value="declined"' + (b.trial === 'declined' ? ' selected' : '') + '>不試上</option>' +
         '</select></td>';
       h += '<td><select data-enroll="' + b.id + '" style="width:auto;padding:4px 8px;font-size:13px"' +
         (b.status === 'showed' ? '' : ' disabled') + '>' +
@@ -1525,16 +1619,18 @@ function viewSetup(c, m) {
 
   /* 波次基本設定 */
   h += '<div class="panel"><h2>這一波的基本設定</h2>';
-  h += '<div class="entry" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr">';
+  h += '<div class="entry" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr">';
   h += '<div><label class="fld">波次名稱</label><input id="s_name" value="' + esc(c.name) + '"></div>';
   h += '<div><label class="fld">開始</label><input type="date" id="s_start" value="' + c.start + '"></div>';
   h += '<div><label class="fld">結束</label><input type="date" id="s_end" value="' + c.end + '"></div>';
   h += '<div><label class="fld">總預算</label><input class="num-in" id="s_budget" value="' + c.budget + '"></div>';
   h += '<div><label class="fld">座位上限</label><input class="num-in" id="s_cap" value="' + c.capacityTotal + '"></div>';
+  h += '<div><label class="fld">每週上限</label><input class="num-in" id="s_capw" value="' + (c.capacityWeek || 8) + '"></div>';
   h += '<div><label class="fld">學習期天數</label><input class="num-in" id="s_learn" value="' + c.learningDays + '"></div>';
   h += '</div>';
   h += '<div class="btns" style="margin-top:14px"><button class="act" id="saveCfg">儲存</button>' +
     '<button class="ghost" id="newWave">開一個新波次</button>' +
+    '<button class="ghost" id="cloneWave">以目前這波為範本</button>' +
     '<button class="ghost" id="delWave">刪除這一波</button></div>';
   h += '<p class="tiny muted" style="margin:12px 0 0">目前日預算基準 ' + money(m.planDaily) + '（總預算 ÷ ' + m.totalDays + ' 天）。</p>';
   h += '</div>';
@@ -1607,7 +1703,8 @@ function viewSetup(c, m) {
   h += '<p class="lede">雲端已經是主要儲存了，備份是給你留一份離線副本，或把舊的本機版資料搬進來用。</p>';
   h += '<div class="btns"><button class="act" id="expJson">匯出備份</button>' +
     '<button class="ghost" id="impJson">匯入舊資料</button>' +
-    '<button class="ghost" id="expCsv">匯出 CSV</button></div>';
+    '<button class="ghost" id="expCsv">匯出 CSV</button>' +
+    '<button class="ghost" id="expMd">匯出波次總結</button></div>';
   h += '<input type="file" id="fileIn" accept="application/json" class="hidden"></div>';
 
   return h;
@@ -1687,12 +1784,39 @@ function wire() {
     if (!date) { toast('請選日期'); return; }
     var spend = n('d_spend'), msgs = n('d_msgs');
     if (spend === null || msgs === null) { toast('花費和訊息數要填'); return; }
-    var lost = { noreply: n('l_noreply') || 0, timing: n('l_timing') || 0, age: n('l_age') || 0, price: n('l_price') || 0 };
-    var rec = { date: date, spend: spend, msgs: msgs, cpm: n('d_cpm'), ctr: n('d_ctr'), freq: n('d_freq'), lost: lost };
+    if (date >= todayISO()) {
+      if (!confirm('這是今天的數字，Meta 還沒跑完整天，成本會偏高。確定要記錄嗎？')) return;
+    }
     var idx = -1;
     for (var i = 0; i < c.days.length; i++) if (c.days[i].date === date) idx = i;
+    var prevLost = (idx >= 0 && c.days[idx].lost) ? c.days[idx].lost : emptyLost();
+    var rec = { date: date, spend: spend, msgs: msgs, cpm: n('d_cpm'), ctr: n('d_ctr'), freq: n('d_freq'), lost: prevLost };
     if (idx >= 0) { c.days[idx] = rec; toast(shortDate(date) + ' 已更新'); }
     else { c.days.push(rec); toast(shortDate(date) + ' 已記錄'); }
+    commit();
+  };
+
+  var addLostBtn = $('#addLost');
+  if (addLostBtn) addLostBtn.onclick = function () {
+    var date = s('l_date');
+    if (!date) { toast('請選日期'); return; }
+    var add = { button: n('l_button') || 0, noreply: n('l_noreply') || 0, timing: n('l_timing') || 0, age: n('l_age') || 0, price: n('l_price') || 0 };
+    var sum = add.button + add.noreply + add.timing + add.age + add.price;
+    if (sum <= 0) { toast('填個數字再加'); return; }
+    var idx = -1;
+    for (var i = 0; i < c.days.length; i++) if (c.days[i].date === date) idx = i;
+    if (idx < 0) {
+      c.days.push({ date: date, spend: null, msgs: null, cpm: null, ctr: null, freq: null, lost: emptyLost() });
+      idx = c.days.length - 1;
+    }
+    var L = c.days[idx].lost || emptyLost();
+    L.button  = (Number(L.button)  || 0) + add.button;
+    L.noreply = (Number(L.noreply) || 0) + add.noreply;
+    L.timing  = (Number(L.timing)  || 0) + add.timing;
+    L.age     = (Number(L.age)     || 0) + add.age;
+    L.price   = (Number(L.price)   || 0) + add.price;
+    c.days[idx].lost = L;
+    toast(shortDate(date) + ' 已加入 ' + sum + ' 筆沒約成');
     commit();
   };
 
@@ -1724,7 +1848,19 @@ function wire() {
       c.bookings.forEach(function (b) {
         if (b.id === id) {
           b.status = sel.value;
-          if (b.status !== 'showed') b.enrolled = null;
+          if (b.status !== 'showed') { b.enrolled = null; b.trial = 'none'; b.trialDate = null; }
+        }
+      });
+      commit();
+    };
+  });
+  document.querySelectorAll('[data-trial]').forEach(function (sel) {
+    sel.onchange = function () {
+      var id = sel.dataset.trial;
+      c.bookings.forEach(function (b) {
+        if (b.id === id) {
+          b.trial = sel.value;
+          b.trialDate = (sel.value === 'booked' || sel.value === 'done') ? (b.trialDate || todayISO()) : null;
         }
       });
       commit();
@@ -1770,6 +1906,7 @@ function wire() {
     c.start = s('s_start'); c.end = s('s_end');
     c.budget = n('s_budget') || c.budget;
     c.capacityTotal = n('s_cap') || c.capacityTotal;
+    c.capacityWeek = n('s_capw') || c.capacityWeek;
     c.learningDays = n('s_learn') || c.learningDays;
     toast('已儲存'); commit();
   };
@@ -1790,6 +1927,19 @@ function wire() {
     var x = newCampaign('新的一波', st, addDays(st, 18), 10000);
     S.campaigns.push(x); S.activeId = x.id;
     TAB = 'setup'; toast('已開新波次'); commit();
+  };
+  var cw = $('#cloneWave');
+  if (cw) cw.onclick = function () {
+    var st = todayISO();
+    var x = newCampaign(c.name + '（複製）', st, addDays(st, 14), c.budget);
+    x.thresholds = JSON.parse(JSON.stringify(c.thresholds));
+    x.minSample = JSON.parse(JSON.stringify(c.minSample));
+    x.capacityWeek = c.capacityWeek;
+    x.capacityTotal = c.capacityTotal;
+    x.learningDays = c.learningDays;
+    x.decisionDays = c.decisionDays;
+    S.campaigns.push(x); S.activeId = x.id;
+    TAB = 'setup'; toast('已用目前這波為範本開新波次'); commit();
   };
   var dw = $('#delWave');
   if (dw) dw.onclick = function () {
@@ -1838,6 +1988,11 @@ function wire() {
     download('廣告每日數字_' + todayISO() + '.csv', csv, 'text/csv');
     toast('CSV 已下載');
   };
+  var em = $('#expMd');
+  if (em) em.onclick = function () {
+    download('波次總結_' + todayISO() + '.md', buildSummaryMd(c), 'text/markdown');
+    toast('波次總結已下載');
+  };
   var ij = $('#impJson');
   if (ij) ij.onclick = function () { $('#fileIn').click(); };
   var fi = $('#fileIn');
@@ -1855,6 +2010,129 @@ function wire() {
     };
     r.readAsText(f);
   };
+}
+
+/* ---------- 波次總結（純數字，不含判讀） ---------- */
+function buildSummaryMd(c) {
+  var m = computeMetrics(c, '9999-12-31');
+  var D = '—';
+  var L = [];
+  function P(s) { L.push(s == null ? '' : s); }
+
+  P('# 波次總結：' + c.name);
+  P('');
+  P('- 檔期：' + c.start + ' ～ ' + c.end);
+  P('- 總預算：' + money(c.budget));
+  P('- 實際花費：' + money(m.spend));
+  P('- 剩餘預算：' + money(c.budget - m.spend));
+  P('');
+
+  P('## 漏斗轉換');
+  P('');
+  P('| 階段 | 數字 | 轉換率 |');
+  P('| --- | --- | --- |');
+  P('| 訊息 | ' + m.msgs + ' 則 | ' + D + ' |');
+  P('| 預約 | ' + m.booked + ' 組 | ' + (m.bookRate === null ? D : pct(m.bookRate)) + '（訊息→預約） |');
+  P('| 到場 | ' + m.showed + ' 組 | ' + (m.showRate === null ? D : pct(m.showRate)) + '（預約→到場） |');
+  P('| 試上 | ' + m.trialYes + ' 組 | ' + (m.trialRate === null ? D : pct(m.trialRate)) + '（到場→試上） |');
+  P('| 正式 | ' + m.enrolled + ' 位 | ' + (m.finalRate === null ? D : pct(m.finalRate)) + '（試上→正式） |');
+  P('');
+
+  P('## 單位成本');
+  P('');
+  P('| 項目 | 成本 |');
+  P('| --- | --- |');
+  P('| 每則訊息 | ' + (m.msgCost === null ? D : money(m.msgCost)) + ' |');
+  P('| 每組預約 | ' + (m.costPerBooking === null ? D : money(m.costPerBooking)) + ' |');
+  P('| 每組到場 | ' + (m.costPerShow === null ? D : money(m.costPerShow)) + ' |');
+  P('| 每位學員 | ' + (m.cpa === null ? D : money(m.cpa)) + ' |');
+  P('');
+
+  var cpms = [], ctrs = [], freqs = [];
+  for (var i = 0; i < c.days.length; i++) {
+    var d = c.days[i];
+    if (d.cpm) cpms.push(Number(d.cpm));
+    if (d.ctr) ctrs.push(Number(d.ctr));
+    if (d.freq) freqs.push(Number(d.freq));
+  }
+  function rng(arr, fmt) {
+    if (!arr.length) return D;
+    var mn = Math.min.apply(null, arr), mx = Math.max.apply(null, arr);
+    var sum = 0;
+    for (var k = 0; k < arr.length; k++) sum += arr[k];
+    return fmt(mn) + '–' + fmt(mx) + '（平均 ' + fmt(sum / arr.length) + '）';
+  }
+  var fMoney = function (x) { return money(x); };
+  var fPct = function (x) { return num(x, 2) + '%'; };
+  var fNum = function (x) { return num(x, 2); };
+  P('## 廣告品質');
+  P('');
+  P('| 指標 | 區間（平均） |');
+  P('| --- | --- |');
+  P('| CPM | ' + rng(cpms, fMoney) + ' |');
+  P('| CTR | ' + rng(ctrs, fPct) + ' |');
+  P('| 頻率 | ' + rng(freqs, fNum) + ' |');
+  P('');
+
+  var leaked = m.msgs - m.booked;
+  var lostRows = [['只按按鈕', m.lost.button], ['真人未回覆', m.lost.noreply], ['時段不合', m.lost.timing], ['年齡不符', m.lost.age], ['嫌貴／問價後消失', m.lost.price]];
+  if (m.lostUnknown > 0) lostRows.push(['未登記', m.lostUnknown]);
+  P('## 流失原因');
+  P('');
+  P('| 原因 | 人數 | 佔流失 |');
+  P('| --- | --- | --- |');
+  lostRows.forEach(function (r) {
+    P('| ' + r[0] + ' | ' + r[1] + ' | ' + (leaked > 0 ? Math.round(100 * r[1] / leaked) + '%' : D) + ' |');
+  });
+  P('');
+
+  var wk = { spend: 0, msgs: 0 }, wd = { spend: 0, msgs: 0 };
+  for (var j = 0; j < c.days.length; j++) {
+    var dd = c.days[j];
+    var dow = new Date(dd.date + 'T00:00:00').getDay();
+    var bucket = (dow === 0 || dow === 6) ? wk : wd;
+    bucket.spend += Number(dd.spend) || 0;
+    bucket.msgs += Number(dd.msgs) || 0;
+  }
+  function mcost(b) { return b.msgs >= 1 ? money(b.spend / b.msgs) : D; }
+  P('## 平日 vs 週末（每則訊息成本）');
+  P('');
+  P('| 類別 | 花費 | 訊息 | 每則成本 |');
+  P('| --- | --- | --- | --- |');
+  P('| 平日 | ' + money(wd.spend) + ' | ' + wd.msgs + ' | ' + mcost(wd) + ' |');
+  P('| 週末 | ' + money(wk.spend) + ' | ' + wk.msgs + ' | ' + mcost(wk) + ' |');
+  P('');
+
+  var a57 = 0, a812 = 0, aOther = 0;
+  for (var p = 0; p < c.bookings.length; p++) {
+    var ag = Number(c.bookings[p].age);
+    if (c.bookings[p].age == null || isNaN(ag)) aOther++;
+    else if (ag >= 5 && ag <= 7) a57++;
+    else if (ag >= 8 && ag <= 12) a812++;
+    else aOther++;
+  }
+  P('## 年齡分布');
+  P('');
+  P('| 年齡層 | 組數 |');
+  P('| --- | --- |');
+  P('| 5–7 歲 | ' + a57 + ' |');
+  P('| 8–12 歲 | ' + a812 + ' |');
+  P('| 其他／未填 | ' + aOther + ' |');
+  P('');
+
+  P('## 每日數字');
+  P('');
+  P('| 日期 | 星期 | 花費 | 訊息 | 單則成本 | CPM | CTR | 頻率 |');
+  P('| --- | --- | --- | --- | --- | --- | --- | --- |');
+  var sorted = c.days.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  sorted.forEach(function (d) {
+    var cost = d.msgs ? money(d.spend / d.msgs) : D;
+    P('| ' + d.date + ' | ' + weekdayTW(d.date) + ' | ' + money(d.spend) + ' | ' + d.msgs + ' | ' + cost +
+      ' | ' + (d.cpm ? money(d.cpm) : D) + ' | ' + (d.ctr ? num(d.ctr, 2) + '%' : D) + ' | ' + (d.freq ? num(d.freq, 2) : D) + ' |');
+  });
+  P('');
+
+  return L.join('\n');
 }
 
 function download(name, text, mime) {
