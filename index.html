@@ -1221,6 +1221,8 @@ function fallbackCopy(txt, done) {
 
 function commit() { saveState(); schedulePush(); render(); }
 
+var LOST_DATE = '';
+
 /* ============================================================
    render
    ============================================================ */
@@ -1476,16 +1478,27 @@ function viewLog(c, m) {
   h += '<div><label class="fld">頻率</label><input class="num-in" id="d_freq" inputmode="decimal" placeholder="選填"></div>';
   h += '<div><button class="act" id="addDay">記錄</button></div>';
   h += '</div>';
+  var ldate = LOST_DATE || addDays(todayISO(), -1);
+  var curLost = emptyLost();
+  for (var li = 0; li < c.days.length; li++) {
+    if (c.days[li].date === ldate && c.days[li].lost) { curLost = c.days[li].lost; break; }
+  }
   h += '<div class="eyebrow" style="margin-top:16px">這些訊息為什麼沒約成？（選填，但填了才知道要修哪裡）</div>';
-  h += '<p class="tiny muted" style="margin:2px 0 8px">「只按按鈕」＝點了廣告按鈕但完全沒進對話；「真人未回覆」＝我們已經回訊、對方不讀不回。填完按「加入沒約成」，一天可以分多次持續累加。</p>';
-  h += '<div class="entry" style="grid-template-columns:repeat(7,1fr)">';
-  h += '<div><label class="fld">只按按鈕</label><input class="num-in" id="l_button" inputmode="numeric" placeholder="0"></div>';
-  h += '<div><label class="fld">真人未回覆</label><input class="num-in" id="l_noreply" inputmode="numeric" placeholder="0"></div>';
-  h += '<div><label class="fld">時段不合</label><input class="num-in" id="l_timing" inputmode="numeric" placeholder="0"></div>';
-  h += '<div><label class="fld">年齡不符</label><input class="num-in" id="l_age" inputmode="numeric" placeholder="0"></div>';
-  h += '<div><label class="fld">嫌貴／問價後消失</label><input class="num-in" id="l_price" inputmode="numeric" placeholder="0"></div>';
-  h += '<div><label class="fld">日期</label><input type="date" id="l_date" value="' + addDays(todayISO(), -1) + '"></div>';
-  h += '<div style="align-self:end"><button class="act" id="addLost">加入沒約成</button></div>';
+  h += '<p class="tiny muted" style="margin:2px 0 10px">遇到一個就點一下「+1」，即時累加到所選日期，不用再按「加入」。點錯用「−」修正。「只按按鈕」＝點了廣告按鈕但完全沒進對話；「真人未回覆」＝我們已回訊、對方不讀不回。</p>';
+  h += '<div class="entry" style="grid-template-columns:auto auto;align-items:center;gap:8px 10px;margin-bottom:6px">';
+  h += '<label class="fld" style="margin:0">記錄日期</label><input type="date" id="l_date" value="' + ldate + '">';
+  h += '</div>';
+  var LOSTCATS = [['button', '只按按鈕'], ['noreply', '真人未回覆'], ['timing', '時段不合'], ['age', '年齡不符'], ['price', '嫌貴／問價後消失']];
+  h += '<div style="max-width:380px">';
+  LOSTCATS.forEach(function (lc) {
+    var key = lc[0], nm = lc[1], val = Number(curLost[key]) || 0;
+    h += '<div style="display:grid;grid-template-columns:1fr 44px 52px 60px;align-items:center;gap:8px;margin:7px 0">' +
+      '<span class="fld" style="margin:0">' + nm + '</span>' +
+      '<button class="ghost" data-lostdec="' + key + '" style="padding:7px 0;text-align:center" aria-label="' + nm + ' 減一">−</button>' +
+      '<span class="num" id="lc_' + key + '" style="text-align:center;font-weight:700;font-size:16px">' + val + '</span>' +
+      '<button class="act" data-lostinc="' + key + '" style="padding:8px 0;text-align:center" aria-label="' + nm + ' 加一">+1</button>' +
+      '</div>';
+  });
   h += '</div>';
 
   var days = c.days.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -1796,29 +1809,49 @@ function wire() {
     commit();
   };
 
-  var addLostBtn = $('#addLost');
-  if (addLostBtn) addLostBtn.onclick = function () {
-    var date = s('l_date');
-    if (!date) { toast('請選日期'); return; }
-    var add = { button: n('l_button') || 0, noreply: n('l_noreply') || 0, timing: n('l_timing') || 0, age: n('l_age') || 0, price: n('l_price') || 0 };
-    var sum = add.button + add.noreply + add.timing + add.age + add.price;
-    if (sum <= 0) { toast('填個數字再加'); return; }
+  var ldateEl = $('#l_date');
+  if (ldateEl) ldateEl.onchange = function () { LOST_DATE = this.value; render(); };
+
+  function lostDayIdx(date, createIfMissing) {
     var idx = -1;
     for (var i = 0; i < c.days.length; i++) if (c.days[i].date === date) idx = i;
-    if (idx < 0) {
+    if (idx < 0 && createIfMissing) {
       c.days.push({ date: date, spend: null, msgs: null, cpm: null, ctr: null, freq: null, lost: emptyLost() });
       idx = c.days.length - 1;
     }
-    var L = c.days[idx].lost || emptyLost();
-    L.button  = (Number(L.button)  || 0) + add.button;
-    L.noreply = (Number(L.noreply) || 0) + add.noreply;
-    L.timing  = (Number(L.timing)  || 0) + add.timing;
-    L.age     = (Number(L.age)     || 0) + add.age;
-    L.price   = (Number(L.price)   || 0) + add.price;
-    c.days[idx].lost = L;
-    toast(shortDate(date) + ' 已加入 ' + sum + ' 筆沒約成');
-    commit();
-  };
+    return idx;
+  }
+
+  document.querySelectorAll('[data-lostinc]').forEach(function (b) {
+    b.onclick = function () {
+      var key = b.dataset.lostinc, date = s('l_date');
+      if (!date) { toast('請選日期'); return; }
+      var idx = lostDayIdx(date, true);
+      var L = c.days[idx].lost || emptyLost();
+      L[key] = (Number(L[key]) || 0) + 1;
+      c.days[idx].lost = L;
+      var span = document.getElementById('lc_' + key);
+      if (span) span.textContent = L[key];
+      saveState(); schedulePush();
+    };
+  });
+
+  document.querySelectorAll('[data-lostdec]').forEach(function (b) {
+    b.onclick = function () {
+      var key = b.dataset.lostdec, date = s('l_date');
+      if (!date) { toast('請選日期'); return; }
+      var idx = lostDayIdx(date, false);
+      if (idx < 0) return;
+      var L = c.days[idx].lost || emptyLost();
+      var cur = Number(L[key]) || 0;
+      if (cur <= 0) return;
+      L[key] = cur - 1;
+      c.days[idx].lost = L;
+      var span = document.getElementById('lc_' + key);
+      if (span) span.textContent = L[key];
+      saveState(); schedulePush();
+    };
+  });
 
   document.querySelectorAll('[data-delday]').forEach(function (b) {
     b.onclick = function () {
