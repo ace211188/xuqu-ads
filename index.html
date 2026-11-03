@@ -398,10 +398,24 @@ function computeMetrics(c, asOf) {
   var booked = 0, dueTotal = 0, showed = 0, noshow = 0;
   var enrollDue = 0, enrolled = 0, deciding = 0;
   var trialYes = 0, trialDone = 0;
+  var direct = 0, directEnrolled = 0;
+  var after = emptyAfter(), afterTotal = 0;
   for (var j = 0; j < c.bookings.length; j++) {
     var b = c.bookings[j];
     if (b.bookedDate && b.bookedDate > today) continue;
+    /* 看廣告私訊、沒做測驗就直接報名：只算進報名與每位學員成本，不進測驗漏斗 */
+    if (b.kind === 'direct') {
+      direct++;
+      if (b.enrolled === true) directEnrolled++;
+      continue;
+    }
     booked++;
+    /* 到場後沒走到報名：沒約試上或試上後沒報名 */
+    if (b.status === 'showed' && (b.enrolled === false || b.trial === 'declined')) {
+      afterTotal++;
+      if (b.lostReason && after.hasOwnProperty(b.lostReason)) after[b.lostReason]++;
+      else after.unknown++;
+    }
     var due = b.testDate && b.testDate <= today;
     if (due) {
       dueTotal++;
@@ -425,10 +439,15 @@ function computeMetrics(c, asOf) {
   m.noshow = noshow;
   m.pendingTest = booked - dueTotal;
   m.enrollDue = enrollDue;
-  m.enrolled = enrolled;
+  m.enrolledTest = enrolled;                 // 走測驗這條路報名的
+  m.direct = direct;
+  m.directEnrolled = directEnrolled;
+  m.enrolled = enrolled + directEnrolled;    // 全部報名（每位學員成本用這個）
   m.deciding = deciding;
   m.trialYes = trialYes;
   m.trialDone = trialDone;
+  m.after = after;
+  m.afterTotal = afterTotal;
 
   /* --- 比率（含樣本門檻） --- */
   /* --- 流失原因 --- */
@@ -477,8 +496,9 @@ function computeMetrics(c, asOf) {
   m.costPerShow = showed >= 1 ? spend / showed : null;
   m.formulas.costPerShow = money(spend) + ' ÷ ' + showed + ' 組到場 = ' + (m.costPerShow === null ? '—' : money(m.costPerShow));
 
-  m.cpa = enrolled >= 1 ? spend / enrolled : null;
-  m.formulas.cpa = money(spend) + ' ÷ ' + enrolled + ' 位 = ' + (m.cpa === null ? '—' : money(m.cpa));
+  m.cpa = m.enrolled >= 1 ? spend / m.enrolled : null;
+  m.formulas.cpa = money(spend) + ' ÷ ' + m.enrolled + ' 位 = ' + (m.cpa === null ? '—' : money(m.cpa)) +
+    (directEnrolled > 0 ? '（含直接報名 ' + directEnrolled + ' 位）' : '');
 
   /* --- 預算與檔期 --- */
   m.budgetLeft = c.budget - spend;
@@ -1368,7 +1388,8 @@ function viewToday(c, m) {
     '當天就結算得出來', m.booked >= 1 ? null : '還沒有預約');
   h += card('每組到場成本', m.costPerShow === null ? '—' : money(m.costPerShow), 'g', m.formulas.costPerShow,
     '決策落後時看這個', m.showed >= 1 ? null : '還沒有人到場');
-  h += card('每位學員成本', m.cpa === null ? '—' : money(m.cpa), 'g', m.formulas.cpa, '報名 ' + m.enrolled + ' 位',
+  h += card('每位學員成本', m.cpa === null ? '—' : money(m.cpa), 'g', m.formulas.cpa,
+    '報名 ' + m.enrolled + ' 位' + (m.directEnrolled ? '（測驗 ' + m.enrolledTest + '＋直接報名 ' + m.directEnrolled + '）' : ''),
     m.enrolled >= 1 ? null : '還沒有人報名');
   h += card('剩餘預算', money(m.budgetLeft), 'g', money(c.budget) + ' − ' + money(m.spend) + ' = ' + money(m.budgetLeft),
     m.formulas.suggestDaily + '（參考值，改日預算會重跑學習期，非必要別動）');
@@ -1426,10 +1447,11 @@ function viewToday(c, m) {
           (leaked ? Math.round(100 * r[1] / leaked) + '%' : '—') + '</td></tr>';
       });
       h += '</tbody></table></div>';
-      var top = rows.slice(0, 4).sort(function (a, b) { return b[1] - a[1]; })[0];
+      var top = rows.slice(0, 5).sort(function (a, b) { return b[1] - a[1]; })[0];
       if (top && top[1] > 0 && top[1] / leaked >= 0.4) {
         var fix = {
-          '未回覆': '回覆速度是關鍵。平日每小時整點掃一次收件匣，並補上 3 小時與 20 小時的挽回訊息（超過 24 小時就發不出去了）。',
+          '只按按鈕': '家長按了年齡按鈕，卻沒有回時段關鍵字。把收單規則的關鍵字放寬（好、可以、平日、週末……），或把時段和姓名合成一步問。',
+          '真人未回覆':'回覆速度是關鍵。平日每小時整點掃一次收件匣，並補上 3 小時與 20 小時的挽回訊息（超過 24 小時就發不出去了）。',
           '時段不合': '時段開得不夠，或開的時段跟家長的作息對不上。先看是哪個年齡層在抱怨，再決定加開哪一段。',
           '年齡不符': '廣告把不對的人帶進來了。文案第一行要寫清楚適用年齡，讓不符合的人不要點。',
           '嫌貴／問價後消失': '價格沒有在廣告文案裡講清楚，篩選成本落到你的人力上。把價格前置到文案第一行。'
@@ -1437,6 +1459,27 @@ function viewToday(c, m) {
         h += '<div class="why" style="margin-top:14px"><p><strong>' + top[0] + '</strong> 佔了流失的 ' +
           Math.round(100 * top[1] / leaked) + '%。</p><p>' + esc(fix) + '</p></div>';
       }
+    }
+    h += '</div>';
+  }
+
+  /* 到場後沒報名的原因 */
+  if (m.afterTotal > 0) {
+    var afterKnown = m.afterTotal - m.after.unknown;
+    h += '<div class="panel"><div class="eyebrow">到場後沒報名　在「記錄」頁的預約名單選原因</div>';
+    h += '<h2>' + m.afterTotal + ' 組到場了，但沒有走到報名</h2>';
+    if (afterKnown === 0) {
+      h += '<p class="lede">還沒有登記原因。這些家長已經花時間來過，問清楚為什麼沒報名，比再多花廣告費更值得。</p>';
+    } else {
+      var arows = AFTER_REASONS.map(function (r) { return [r[1], m.after[r[0]]]; });
+      if (m.after.unknown > 0) arows.push(['未登記', m.after.unknown]);
+      h += '<div class="tscroll"><table><thead><tr><th>原因</th><th style="text-align:right">組數</th><th style="text-align:right">佔比</th></tr></thead><tbody>';
+      arows.forEach(function (r) {
+        if (!r[1]) return;
+        h += '<tr><td>' + r[0] + '</td><td class="n">' + r[1] + '</td><td class="n">' +
+          Math.round(100 * r[1] / m.afterTotal) + '%</td></tr>';
+      });
+      h += '</tbody></table></div>';
     }
     h += '</div>';
   }
@@ -1450,6 +1493,21 @@ function viewToday(c, m) {
 }
 
 function emptyLost() { return { button: 0, noreply: 0, timing: 0, age: 0, price: 0 }; }
+
+/* 到場後沒報名的原因（記在每一筆預約上） */
+var AFTER_REASONS = [
+  ['price', '價格'],
+  ['schedule', '時間排不進'],
+  ['distance', '距離太遠'],
+  ['interest', '孩子興趣不足'],
+  ['thinking', '還在考慮／沒回覆'],
+  ['other', '其他']
+];
+function emptyAfter() {
+  var o = { unknown: 0 };
+  AFTER_REASONS.forEach(function (r) { o[r[0]] = 0; });
+  return o;
+}
 function lostLabel(l) {
   if (!l) return '—';
   var parts = [];
@@ -1538,14 +1596,41 @@ function viewLog(c, m) {
   h += '<div><label class="fld">年齡</label><input class="num-in" id="b_age" inputmode="numeric" placeholder="7"></div>';
   h += '<div><button class="act" id="addBook">新增</button></div>';
   h += '</div>';
+  h += '<p class="tiny muted" style="margin:14px 0 6px">看到廣告私訊、沒做測驗就直接報名的，記在這裡（不算進測驗漏斗，只算進報名和每位學員成本）：</p>';
+  h += '<div class="entry book">';
+  h += '<div><label class="fld">報名日</label><input type="date" id="d_date" value="' + todayISO() + '"></div>';
+  h += '<div><label class="fld">孩子姓名</label><input id="d_name" placeholder="王小明"></div>';
+  h += '<div><label class="fld">年齡</label><input class="num-in" id="d_age" inputmode="numeric" placeholder="7"></div>';
+  h += '<div><button class="act" id="addDirect">直接報名</button></div>';
+  h += '</div>';
 
-  var bs = c.bookings.slice().sort(function (a, b) { return (a.testDate || '') < (b.testDate || '') ? 1 : -1; });
+  var bs = c.bookings.slice().sort(function (a, b) {
+    var ka = a.testDate || a.bookedDate || '', kb = b.testDate || b.bookedDate || '';
+    return ka < kb ? 1 : -1;
+  });
+  var selStyle = ' style="width:auto;padding:4px 8px;font-size:13px"';
   if (bs.length) {
     h += '<div class="hr"></div><div class="tscroll"><table><thead><tr>' +
-      '<th>測驗日</th><th>姓名</th><th style="text-align:right">年齡</th><th>到場</th><th>試上</th><th>報名</th><th></th>' +
+      '<th>測驗日</th><th>姓名</th><th style="text-align:right">年齡</th><th>到場</th><th>試上</th><th>報名</th><th>沒報名原因</th><th></th>' +
       '</tr></thead><tbody>';
     bs.forEach(function (b) {
+      if (b.kind === 'direct') {
+        h += '<tr>';
+        h += '<td class="num">' + shortDate(b.bookedDate) + '（' + weekdayTW(b.bookedDate) + '）</td>';
+        h += '<td>' + esc(b.name || '—') + '</td>';
+        h += '<td class="n">' + (b.age || '—') + '</td>';
+        h += '<td colspan="2" class="tiny muted">直接報名（沒做測驗）</td>';
+        h += '<td><select data-enroll="' + b.id + '"' + selStyle + '>' +
+          '<option value="yes"' + (b.enrolled === true ? ' selected' : '') + '>已報名</option>' +
+          '<option value="no"' + (b.enrolled !== true ? ' selected' : '') + '>沒報名</option>' +
+          '</select></td>';
+        h += '<td></td>';
+        h += '<td style="text-align:right"><button class="rowbtn" data-delbook="' + b.id + '" title="刪除">✕</button></td>';
+        h += '</tr>';
+        return;
+      }
       var due = b.testDate && b.testDate <= m.today;
+      var needReason = b.status === 'showed' && (b.enrolled === false || b.trial === 'declined');
       h += '<tr>';
       h += '<td class="num">' + shortDate(b.testDate) + '（' + weekdayTW(b.testDate) + '）' +
         (due ? '' : '<span class="tiny muted"> 未到期</span>') + '</td>';
@@ -1569,13 +1654,21 @@ function viewLog(c, m) {
         '<option value="yes"' + (b.enrolled === true ? ' selected' : '') + '>已報名</option>' +
         '<option value="no"' + (b.enrolled === false ? ' selected' : '') + '>沒報名</option>' +
         '</select></td>';
+      h += '<td><select data-reason="' + b.id + '"' + selStyle + (needReason ? '' : ' disabled') + '>' +
+        '<option value=""' + (!b.lostReason ? ' selected' : '') + '>' + (needReason ? '未登記' : '—') + '</option>' +
+        AFTER_REASONS.map(function (r) {
+          return '<option value="' + r[0] + '"' + (b.lostReason === r[0] ? ' selected' : '') + '>' + r[1] + '</option>';
+        }).join('') +
+        '</select></td>';
       h += '<td style="text-align:right"><button class="rowbtn" data-delbook="' + b.id + '" title="刪除">✕</button></td>';
       h += '</tr>';
     });
     h += '</tbody></table></div>';
     h += '<p class="tiny muted" style="margin:12px 0 0">已預約 ' + m.booked + ' 組｜測驗日已過 ' + m.dueTotal +
       ' 組｜到場 ' + m.showed + '｜爽約 ' + m.noshow + '｜還沒到測驗日 ' + m.pendingTest +
-      '｜報名 ' + m.enrolled + '｜決策中 ' + m.deciding + '</p>';
+      '｜試上 ' + m.trialDone + '｜報名 ' + m.enrolled +
+      (m.directEnrolled ? '（含直接報名 ' + m.directEnrolled + '）' : '') +
+      '｜決策中 ' + m.deciding + '</p>';
   } else {
     h += '<div class="hr"></div><p class="tiny muted">還沒有預約。每接到一組就打一列，大約 15 秒。</p>';
   }
@@ -1729,7 +1822,7 @@ function viewHistory(c, m) {
     '<p class="lede">每則訊息成本可以跨波比較；每位學員成本才是真正該看的數字，但要等報名回填完才準。</p>';
   h += '<div class="tscroll"><table><thead><tr><th>波次</th><th>檔期</th><th style="text-align:right">花費</th>' +
     '<th style="text-align:right">訊息</th><th style="text-align:right">單則成本</th><th style="text-align:right">預約</th>' +
-    '<th style="text-align:right">到場</th><th style="text-align:right">報名</th><th style="text-align:right">每位成本</th></tr></thead><tbody>';
+    '<th style="text-align:right">到場</th><th style="text-align:right">試上</th><th style="text-align:right">報名</th><th style="text-align:right">每位成本</th></tr></thead><tbody>';
   S.campaigns.forEach(function (x) {
     var mm = computeMetrics(x);
     h += '<tr' + (x.id === S.activeId ? ' style="color:var(--coral)"' : '') + '>';
@@ -1740,7 +1833,8 @@ function viewHistory(c, m) {
     h += '<td class="n">' + (mm.msgCost === null ? '—' : money(mm.msgCost)) + '</td>';
     h += '<td class="n">' + mm.booked + '</td>';
     h += '<td class="n">' + mm.showed + '</td>';
-    h += '<td class="n">' + mm.enrolled + '</td>';
+    h += '<td class="n">' + mm.trialDone + '</td>';
+    h += '<td class="n">' + mm.enrolled + (mm.directEnrolled ? '<span class="tiny muted">（直接 ' + mm.directEnrolled + '）</span>' : '') + '</td>';
     h += '<td class="n">' + (mm.cpa === null ? '—' : money(mm.cpa)) + '</td>';
     h += '</tr>';
   });
@@ -1875,13 +1969,37 @@ function wire() {
     commit();
   };
 
+  var addDirectBtn = $('#addDirect');
+  if (addDirectBtn) addDirectBtn.onclick = function () {
+    var dd = s('d_date');
+    if (!dd) { toast('報名日要填'); return; }
+    c.bookings.push({
+      id: 'b' + Date.now() + Math.floor(Math.random() * 999),
+      kind: 'direct', bookedDate: dd, testDate: null,
+      name: s('d_name'), age: n('d_age'),
+      status: 'direct', enrolled: true
+    });
+    toast('已記為直接報名');
+    commit();
+  };
+
+  document.querySelectorAll('[data-reason]').forEach(function (sel) {
+    sel.onchange = function () {
+      var id = sel.dataset.reason;
+      c.bookings.forEach(function (b) {
+        if (b.id === id) b.lostReason = sel.value || null;
+      });
+      commit();
+    };
+  });
+
   document.querySelectorAll('[data-status]').forEach(function (sel) {
     sel.onchange = function () {
       var id = sel.dataset.status;
       c.bookings.forEach(function (b) {
         if (b.id === id) {
           b.status = sel.value;
-          if (b.status !== 'showed') { b.enrolled = null; b.trial = 'none'; b.trialDate = null; }
+          if (b.status !== 'showed') { b.enrolled = null; b.trial = 'none'; b.trialDate = null; b.lostReason = null; }
         }
       });
       commit();
