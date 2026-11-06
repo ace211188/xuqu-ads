@@ -97,6 +97,23 @@ label.fld{display:block;font-size:12px;color:var(--mist);margin-bottom:4px;lette
 .todo{list-style:none;margin:0;padding:0}
 .todo li{position:relative;padding-left:20px;margin-bottom:6px;font-size:14px}
 .todo li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55}
+.agent{border-radius:14px;padding:18px 22px;margin-bottom:16px;border:1px solid var(--line);background:var(--surge)}
+.agent.green{border-color:#1E6E5C}.agent.amber{border-color:#6B5520}.agent.red{border-color:var(--coral-deep)}
+.agent .ahead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.agent .light{font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px;border:1px solid}
+.agent .light.green{color:var(--kelp);border-color:var(--kelp)}.agent .light.amber{color:var(--gold);border-color:var(--gold)}
+.agent .light.red{color:var(--coral);border-color:var(--coral)}.agent .light.grey{color:var(--mist);border-color:var(--line)}
+.agent .atitle{font-size:18px;font-weight:800;margin:8px 0 6px}
+.agent .asum{font-size:14px;margin:0 0 12px;line-height:1.7}
+.agent .amet{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin:0 0 14px}
+.agent .amet div{background:rgba(0,0,0,.22);border-radius:8px;padding:8px 10px}
+.agent .amet b{display:block;font-size:17px}
+.agent .sug{display:flex;justify-content:space-between;align-items:center;gap:8px 10px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line-soft);font-size:13.5px}
+.agent .sug > div:first-child{flex:1 1 220px}
+.agent .sug button{white-space:nowrap}
+.agent .sug .tag{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin-right:6px;color:var(--mist)}
+.agent .sug.done{opacity:.55}
+.agent details{margin-top:10px;font-size:13px}.agent summary{cursor:pointer;color:var(--mist)}
 .why{background:rgba(0,0,0,.22);border-radius:8px;padding:11px 14px;margin:0 0 14px;font-size:13.5px}
 .why p{margin:0 0 5px}.why p:last-child{margin:0}
 .also{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
@@ -1054,6 +1071,7 @@ function tick() {
   if (AUTH !== 'ready' || CONFLICT) return;
   if (SYNC === 'offline') doPush();   // 離線時累積的變更，恢復連線就補送
   else pullNow(true);
+  loadAgent();
 }
 
 function startPolling() {
@@ -1097,7 +1115,124 @@ function adoptServer(p) {
   AUTH = 'ready';
   render();
   startPolling();
+  loadAgent();
   if (SRV_VERSION === 0) schedulePush();
+}
+
+/* ---------- 雲端 agent 報告 ---------- */
+var AGENT = null;
+var AGENT_SIG = '';
+function loadAgent() {
+  if (AUTH !== 'ready' || !TOKEN) return;
+  rpc('ads_agent_latest', { tok: TOKEN }).then(function (r) {
+    var sig = r ? (r.id + ':' + JSON.stringify(r.suggestions)) : '';
+    if (sig === AGENT_SIG) return;
+    AGENT = r; AGENT_SIG = sig;
+    if (TAB === 'today') render();
+  }).catch(function () {});
+}
+
+function agentCampaign(cid) {
+  for (var i = 0; i < S.campaigns.length; i++) if (S.campaigns[i].id === cid) return S.campaigns[i];
+  return C();
+}
+
+function applySuggestion(s) {
+  var p = s.payload || {};
+  if (s.type === 'add_booking') {
+    var c = agentCampaign(p.campaignId);
+    var dup = c.bookings.some(function (b) {
+      return (b.name || '').trim() === (p.name || '').trim() && b.testDate === p.testDate;
+    });
+    if (!dup) {
+      c.bookings.push({
+        id: 'b' + Date.now() + Math.floor(Math.random() * 999),
+        bookedDate: p.bookedDate || p.testDate, testDate: p.testDate,
+        name: p.name || '', age: p.age == null ? null : Number(p.age),
+        status: 'pending', enrolled: null, note: p.note || '', fromAgent: true
+      });
+    }
+    return true;
+  }
+  if (s.type === 'lost') {
+    var c2 = agentCampaign(p.campaignId);
+    if (!p.date || ['button', 'noreply', 'timing', 'age', 'price'].indexOf(p.key) < 0) return false;
+    var idx = -1;
+    for (var i = 0; i < c2.days.length; i++) if (c2.days[i].date === p.date) idx = i;
+    if (idx < 0) { c2.days.push({ date: p.date, spend: null, msgs: null, cpm: null, ctr: null, freq: null, lost: emptyLost() }); idx = c2.days.length - 1; }
+    var L = c2.days[idx].lost || emptyLost();
+    L[p.key] = (Number(L[p.key]) || 0) + 1;
+    c2.days[idx].lost = L;
+    return true;
+  }
+  return true; // info：只是記錄判斷，不改名單
+}
+
+function agentCard() {
+  var a = AGENT;
+  if (!a) return '';
+  var lightName = { green: '綠燈', amber: '黃燈', red: '紅燈', grey: '資料不足' }[a.light] || '';
+  var met = a.metrics || {};
+  var h = '<div class="agent ' + esc(a.light) + '">';
+  h += '<div class="ahead"><div class="eyebrow" style="margin:0">雲端 agent｜' + esc(a.report_date) + ' 報告</div>' +
+       '<span class="light ' + esc(a.light) + '">' + lightName + '</span></div>';
+  h += '<div class="atitle">' + esc(a.title) + '</div>';
+  if (a.summary) h += '<p class="asum">' + esc(a.summary) + '</p>';
+  var tiles = [['昨日花費', met.spend_yesterday == null ? '—' : 'NT$' + met.spend_yesterday],
+               ['新對話（家長）', met.parent_threads == null ? '—' : met.parent_threads + ' 則'],
+               ['約到測驗', met.booked == null ? '—' : met.booked + ' 位'],
+               ['點擊→對話', met.click_to_msg == null ? '—' : met.click_to_msg + '%'],
+               ['新觸及比例', met.new_reach == null ? '—' : met.new_reach + '%']];
+  h += '<div class="amet">' + tiles.map(function (t) { return '<div><span class="tiny muted">' + t[0] + '</span><b>' + esc(t[1]) + '</b></div>'; }).join('') + '</div>';
+  if (a.todo && a.todo.length) {
+    h += '<div class="eyebrow" style="margin-bottom:7px">今天要做</div>';
+    h += '<ul class="todo">' + a.todo.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+  }
+  var sugs = a.suggestions || [];
+  if (sugs.length) {
+    var pend = sugs.filter(function (s) { return (s.status || 'pending') === 'pending'; }).length;
+    h += '<div class="eyebrow" style="margin:14px 0 4px">建議更新作戰台（待處理 ' + pend + '）</div>';
+    var tagName = { add_booking: '新增預約', lost: '沒約成', info: '判斷' };
+    sugs.forEach(function (s) {
+      var st = s.status || 'pending';
+      h += '<div class="sug' + (st === 'pending' ? '' : ' done') + '"><div><span class="tag">' + (tagName[s.type] || s.type) + '</span>' + esc(s.label) + '</div>';
+      if (st === 'pending') {
+        h += '<div class="btns"><button class="act" data-agentapply="' + esc(s.id) + '">套用</button>' +
+             '<button class="ghost" data-agentskip="' + esc(s.id) + '">略過</button></div>';
+      } else {
+        h += '<span class="tiny muted">' + (st === 'applied' ? '已套用' : '已略過') + '</span>';
+      }
+      h += '</div>';
+    });
+  }
+  if (a.conversations && a.conversations.length) {
+    h += '<details><summary>看 agent 怎麼判斷每則對話（' + a.conversations.length + '）</summary><ul class="todo" style="margin-top:8px">' +
+      a.conversations.map(function (v) {
+        return '<li>' + esc(v.who) + '｜' + esc(v.kind) + (v.stage ? '｜' + esc(v.stage) : '') + (v.reason ? '｜' + esc(v.reason) : '') + '</li>';
+      }).join('') + '</ul></details>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function wireAgent() {
+  function find(id) { return (AGENT && AGENT.suggestions || []).filter(function (s) { return s.id === id; })[0]; }
+  function mark(id, st) {
+    var s = find(id); if (!s) return;
+    s.status = st;
+    AGENT_SIG = AGENT.id + ':' + JSON.stringify(AGENT.suggestions);
+    rpc('ads_agent_mark', { tok: TOKEN, report_id: AGENT.id, sid: id, new_status: st }).catch(function () { toast('標記沒存到，稍後會再試'); });
+  }
+  document.querySelectorAll('[data-agentapply]').forEach(function (b) {
+    b.onclick = function () {
+      var s = find(b.dataset.agentapply); if (!s) return;
+      if (!applySuggestion(s)) { toast('這條建議的資料不完整，先略過'); return; }
+      mark(s.id, 'applied'); toast('已套用'); commit();
+    };
+  });
+  document.querySelectorAll('[data-agentskip]').forEach(function (b) {
+    b.onclick = function () { mark(b.dataset.agentskip, 'skipped'); render(); };
+  });
 }
 
 function signOut(expired) {
@@ -1267,8 +1402,9 @@ function render() {
   }).join('');
 
   var v = { today: viewToday, log: viewLog, assets: viewAssets, setup: viewSetup, history: viewHistory }[TAB];
-  $('#main').innerHTML = (CONFLICT ? renderConflict() : '') + v(c, m);
+  $('#main').innerHTML = (CONFLICT ? renderConflict() : '') + (TAB === 'today' ? agentCard() : '') + v(c, m);
   wire();
+  if (TAB === 'today') wireAgent();
   if (CONFLICT) wireConflict();
   paintSync();
 }
