@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>廣告作戰台｜序曲音樂學院</title>
 <style>
+/* 黑機身 × 科技感：青色＝資料、橘色＝警示（變數名沿用舊版，值換成新配色） */
 :root{
-  --ink:#04212A; --sea:#0A2F3A; --surge:#10404E; --line:#1A5763; --line-soft:#123B47;
-  --foam:#E9F3F2; --mist:#7DA5AB; --dim:#4E7C84;
-  --coral:#F2705F; --coral-deep:#8C3A33; --coral-soft:#3A1F1D;
-  --gold:#E8B54B; --gold-soft:#3A3018;
-  --kelp:#46B995; --kelp-soft:#0F3A31;
+  --ink:#121315; --sea:#181b1d; --surge:#202427; --line:#2c3438; --line-soft:#23292c;
+  --foam:#E6EEF0; --mist:#8d9a9d; --dim:#5f6d71;
+  --coral:#FF5A1F; --coral-deep:#7a3216; --coral-soft:#2a1710;
+  --gold:#FCB52A; --gold-soft:#2a2210;
+  --kelp:#3EC6E0; --kelp-soft:#0f2a30;
+  --cyan:#3EC6E0; --ease:cubic-bezier(.16,1,.3,1);
+  --disp:"Bahnschrift","Microsoft JhengHei",sans-serif;
   --sans:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans",sans-serif;
   --mono:Consolas,"SF Mono",Menlo,ui-monospace,monospace;
 }
@@ -238,6 +241,135 @@ details .dbody{padding:0 14px 13px;font-size:13.5px;color:var(--foam);line-heigh
   .wave-pick{width:100%;justify-content:space-between}
   .wave-pick select{flex:1;max-width:none;margin-left:8px}
 }
+
+/* ============================================================
+   黑機身 × 科技感（2026-11 改版）
+   ============================================================ */
+body{
+  background:
+    radial-gradient(70% 45% at 20% 0%, rgba(62,198,224,.07), transparent 60%),
+    radial-gradient(circle, rgba(120,170,180,.11) 1px, transparent 1.4px) 0 0 / 22px 22px,
+    var(--ink);
+  background-attachment:fixed;
+}
+.wrap{max-width:1180px}
+.brand h1{font-weight:400;letter-spacing:.06em}
+.brand .sub{font-family:var(--mono);color:var(--dim);letter-spacing:.24em}
+nav.tabs button{letter-spacing:.08em}
+nav.tabs button[aria-selected="true"]{color:var(--foam);border-bottom-color:var(--coral)}
+.wave-pick select{border-radius:2px}
+.sync{border-radius:2px;font-family:var(--mono)}
+.panel,.verdict,.agent,.gcard{position:relative;border-radius:3px;background:rgba(24,27,29,.86)}
+.panel,.agent{border-color:var(--line-soft)}
+.panel::before,.panel::after,.verdict::before,.verdict::after,.agent::before,.agent::after,.gcard::before,.gcard::after{
+  content:"";position:absolute;width:14px;height:14px;border:0 solid var(--cyan);opacity:.7;pointer-events:none;transition:width .3s var(--ease),height .3s var(--ease),opacity .3s}
+.panel::before,.verdict::before,.agent::before,.gcard::before{left:-1px;top:-1px;border-width:1px 0 0 1px}
+.panel::after,.verdict::after,.agent::after,.gcard::after{right:-1px;bottom:-1px;border-width:0 1px 1px 0}
+.panel:hover::before,.panel:hover::after{width:24px;height:24px;opacity:1}
+.mcard,.cblock,.ctext,.agent .amet div,.why{border-radius:2px}
+.mcard .mv{font-family:var(--disp);font-weight:300}
+button.act,button.ghost,input,select,textarea{border-radius:2px}
+button.act{color:#1a0b05}
+.verdict.green .vtitle{color:var(--cyan)}
+.eyebrow{font-family:var(--mono);letter-spacing:.24em}
+th{font-family:var(--mono)}
+
+/* 總覽 */
+.ov-grid{display:grid;gap:14px;margin-bottom:14px}
+.ov-r1{grid-template-columns:1fr 300px}
+.ov-r2{grid-template-columns:1.1fr 1fr}
+.ov-r3{grid-template-columns:1fr}
+@media(max-width:900px){.ov-r1,.ov-r2{grid-template-columns:1fr}}
+.ov-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.ov-eng{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+.ov-eng b{color:var(--coral);font-weight:400;margin-right:6px}
+.ov-screen{background:#000;border:1px solid #1d2a2e;box-shadow:inset 0 0 0 4px #070909,inset 0 8px 20px rgba(0,0,0,.8);padding:14px 16px 10px;position:relative;overflow:hidden}
+.ov-screen::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);pointer-events:none}
+.ov-verdict{font-size:19px;line-height:1.5;margin:4px 0 2px}
+.ov-verdict.glitch{animation:ovGlitch .32s steps(3) 1}
+@keyframes ovGlitch{0%{text-shadow:3px 0 rgba(255,90,31,.8),-3px 0 rgba(62,198,224,.8);transform:translateX(2px);clip-path:inset(10% 0 55% 0)}40%{text-shadow:-3px 0 rgba(255,90,31,.8),3px 0 rgba(62,198,224,.8);transform:translateX(-3px);clip-path:inset(55% 0 5% 0)}100%{text-shadow:none;transform:none;clip-path:none}}
+.ov-light{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.ov-light i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.ov-light.green{color:var(--cyan)}.ov-light.amber{color:var(--gold)}.ov-light.red{color:var(--coral)}.ov-light.grey{color:var(--mist)}
+.ov-spark{display:block;width:100%;height:84px;margin-top:6px;cursor:crosshair}
+.ov-todo{list-style:none;margin:12px 0 0;padding:0}
+.ov-todo li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line-soft);font-size:14px}
+.ov-todo li span.k{font-family:var(--mono);font-size:11px;color:var(--coral);min-width:22px;padding-top:3px}
+.ov-todo li button{margin-left:auto;white-space:nowrap}
+.ov-radar{width:190px;height:190px;border-radius:50%;position:relative;margin:4px auto 0;cursor:help;overflow:hidden;
+  background:repeating-radial-gradient(circle,transparent 0 31px,rgba(62,198,224,.25) 31px 32px),
+    linear-gradient(transparent calc(50% - .5px),rgba(62,198,224,.25) calc(50% - .5px) calc(50% + .5px),transparent calc(50% + .5px)),
+    linear-gradient(90deg,transparent calc(50% - .5px),rgba(62,198,224,.25) calc(50% - .5px) calc(50% + .5px),transparent calc(50% + .5px)),#050809;
+  box-shadow:0 0 0 1px #1d2a2e,inset 0 0 34px rgba(62,198,224,.12)}
+.ov-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(62,198,224,.5),rgba(62,198,224,0) 75deg,transparent 360deg);animation:ovSpin 4s linear infinite}
+@keyframes ovSpin{to{transform:rotate(360deg)}}
+.ov-blip{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#4f5f64;transition:box-shadow .5s,background .5s}
+.ov-blip.new{background:#2b6f7c}.ov-blip.new.hit{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}.ov-blip.hit:not(.new){background:#8fa1a6}
+.ov-legend{display:flex;justify-content:center;gap:14px;margin-top:10px;font-size:12px;color:var(--mist)}
+.ov-legend b{font-family:var(--mono);font-weight:400;color:var(--cyan)}
+.ov-big{display:flex;align-items:flex-end;gap:16px}
+.ov-dot{font-family:var(--disp);font-size:96px;line-height:.95;font-weight:700;font-variant-numeric:tabular-nums;
+  background:radial-gradient(circle,var(--coral) 42%,transparent 46%) 0 0/7px 7px;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(255,90,31,.35))}
+.ov-dot.ok{background-image:radial-gradient(circle,var(--cyan) 42%,transparent 46%);filter:drop-shadow(0 0 8px rgba(62,198,224,.35))}
+.ov-delta{font-family:var(--mono);font-size:13px;line-height:1.6;padding-bottom:6px}
+.ov-reads{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.ov-read{background:var(--surge);padding:8px 10px;box-shadow:inset 0 -2px 0 #0b0c0d}
+.ov-read span{display:block;font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.14em}
+.ov-read b{font-family:var(--mono);font-weight:400;font-size:19px}
+.ov-meter{display:grid;grid-template-columns:46px 1fr 40px 48px;align-items:center;gap:10px;padding:5px 4px;font-size:13.5px;color:var(--mist);border-radius:2px}
+.ov-meter:hover{background:rgba(62,198,224,.06)}
+.ov-seg{display:flex;gap:3px}
+.ov-seg i{flex:1;height:14px;background:#1f272a;transition:background .15s,box-shadow .15s}
+.ov-seg i.on{background:#CFE7EC;box-shadow:0 0 5px rgba(207,231,236,.3)}
+.ov-seg i.hot{background:var(--coral);box-shadow:0 0 8px rgba(255,90,31,.7)}
+.ov-meter b{font-family:var(--mono);font-weight:400;color:var(--foam);text-align:right}
+.ov-meter em{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right}
+.ov-meter.leak,.ov-meter.leak b,.ov-meter.leak em{color:var(--coral)}
+.ov-sim{display:grid;grid-template-columns:150px 1fr;gap:22px;align-items:center}
+@media(max-width:620px){.ov-sim{grid-template-columns:1fr}.ov-reads{grid-template-columns:repeat(2,1fr)}}
+.ov-dial{width:140px;height:140px;position:relative;touch-action:none;cursor:grab;user-select:none;margin:0 auto}
+.ov-dial svg{position:absolute;inset:0}
+.ov-knob{position:absolute;inset:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#41474a,#15171a);box-shadow:0 8px 16px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.12)}
+.ov-ptr{position:absolute;left:calc(50% - 2px);top:8px;width:4px;height:22px;border-radius:2px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);transform-origin:2px 40px}
+.ov-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:24px;color:var(--cyan)}
+.ov-outs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.ov-out{background:var(--surge);padding:10px 12px;box-shadow:inset 0 -2px 0 #0b0c0d}
+.ov-out span{display:block;font-size:12px;color:var(--mist)}
+.ov-out b{font-family:var(--mono);font-weight:400;font-size:22px}
+.ov-ctl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px;font-size:13px;color:var(--mist)}
+.ov-segbtn{display:inline-flex;border:1px solid var(--line)}
+.ov-segbtn button{background:transparent;color:var(--mist);border:0;padding:6px 10px;font:12px var(--mono);cursor:pointer}
+.ov-segbtn button+button{border-left:1px solid var(--line)}
+.ov-segbtn button.on{background:rgba(62,198,224,.12);color:var(--cyan)}
+.ov-step{display:inline-flex;align-items:center;gap:2px}
+.ov-step button{width:28px;height:28px;background:var(--surge);color:var(--foam);border:1px solid var(--line);cursor:pointer;font:16px var(--mono)}
+.ov-step b{min-width:34px;text-align:center;font-family:var(--mono);font-weight:400;color:var(--foam)}
+.ov-chart{display:block;width:100%;height:200px;cursor:crosshair}
+.ov-tip{position:fixed;pointer-events:none;background:#0b0d0e;border:1px solid var(--cyan);color:var(--foam);font-family:var(--mono),var(--sans);font-size:12px;padding:6px 9px;line-height:1.6;opacity:0;transition:opacity .12s;z-index:120;white-space:nowrap}
+.ov-tip.on{opacity:1}
+.ov-tip b{color:var(--cyan);font-weight:400}.ov-tip .o{color:var(--coral)}
+/* 預約看板 */
+.ov-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media(max-width:760px){.ov-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ov-col{background:var(--surge);min-height:150px;padding:8px;transition:background .2s,box-shadow .2s}
+.ov-col.over{background:rgba(62,198,224,.08);box-shadow:inset 0 0 0 1px var(--cyan)}
+.ov-col h3{display:flex;justify-content:space-between;font-size:12.5px;font-weight:400;color:var(--mist);margin:0 0 8px}
+.ov-col h3 b{font-family:var(--mono);font-weight:400;color:var(--foam)}
+.ov-card{background:#262c2f;padding:7px 8px;margin-bottom:6px;font-size:13px;cursor:grab;border-left:2px solid #3a4448;transition:transform .15s var(--ease),box-shadow .15s}
+.ov-card:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.ov-card.dragging{opacity:.4}
+.ov-card small{display:block;font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+.ov-card.late{border-left-color:var(--coral)}.ov-card.late small{color:var(--coral)}
+/* 回訪清單 */
+.rc-row{display:grid;grid-template-columns:minmax(110px,1.1fr) 70px 90px minmax(120px,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line-soft);font-size:14px}
+@media(max-width:760px){.rc-row{grid-template-columns:1fr 1fr}}
+.rc-row .st{font-family:var(--mono);font-size:12px}
+.rc-st-todo{color:var(--gold)}.rc-st-sent{color:var(--cyan)}.rc-st-replied{color:var(--cyan)}.rc-st-booked{color:var(--kelp)}.rc-st-no{color:var(--dim)}
+.rc-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.rc-acts button{padding:5px 9px;font-size:12.5px}
+.rc-filter{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+details.rc-tpl summary::before{content:"▸ "}
+details.rc-tpl[open] summary::before{content:"▾ "}
 
 </style>
 </head>
@@ -1128,7 +1260,7 @@ function loadAgent() {
     var sig = r ? (r.id + ':' + JSON.stringify(r.suggestions)) : '';
     if (sig === AGENT_SIG) return;
     AGENT = r; AGENT_SIG = sig;
-    if (TAB === 'today') render();
+    if (TAB === 'today' || TAB === 'overview') render();
   }).catch(function () {});
 }
 
@@ -1339,7 +1471,7 @@ function wireConflict() {
    介面層
    ============================================================ */
 
-var TAB = 'today';
+var TAB = 'overview';
 var $ = function (s) { return document.querySelector(s); };
 
 function esc(s) {
@@ -1396,17 +1528,507 @@ function render() {
   if (sh) sh.style.display = '';
   var hb = document.getElementById('headBar');
   if (hb) hb.style.display = '';
-  var tabs = [['today', '今天'], ['log', '記錄'], ['assets', '素材'], ['setup', '設定'], ['history', '歷史']];
+  var tabs = [['overview', '總覽'], ['today', '今天'], ['log', '記錄'], ['assets', '素材'], ['setup', '設定'], ['history', '歷史']];
   $('#tabs').innerHTML = tabs.map(function (t) {
     return '<button role="tab" aria-selected="' + (TAB === t[0]) + '" data-tab="' + t[0] + '">' + t[1] + '</button>';
   }).join('');
 
-  var v = { today: viewToday, log: viewLog, assets: viewAssets, setup: viewSetup, history: viewHistory }[TAB];
+  var v = { overview: viewOverview, today: viewToday, log: viewLog, assets: viewAssets, setup: viewSetup, history: viewHistory }[TAB];
   $('#main').innerHTML = (CONFLICT ? renderConflict() : '') + (TAB === 'today' ? agentCard() : '') + v(c, m);
   wire();
   if (TAB === 'today') wireAgent();
+  if (TAB === 'overview') wireOverview(c, m);
   if (CONFLICT) wireConflict();
   paintSync();
+}
+
+/* ============================================================
+   總覽：跨波次的判斷、試算、回訪清單、預約看板
+   ============================================================ */
+var OV = { conv: null, target: 8, cpmKey: 'all', animated: false, rcFilter: 'all', rcShowDone: false, radarRun: 0, simBusy: false };
+var OV_REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var RC_STATUS = [['todo', '還沒聯絡'], ['sent', '已傳訊息'], ['replied', '有回覆'], ['booked', '約成了'], ['no', '不用了']];
+var RC_DEFAULT_TPL = '您好，我是序曲音樂學院 😊 {name}之前來做過適性學習測驗，謝謝你們！寒假快到了，我們開了寒假體驗課，想先問問{name}最近對音樂還有興趣嗎？如果想再來玩玩看，我可以先幫你們保留時段。';
+
+/* 所有波次加總，給漏斗與試算器用 */
+function allMetrics() {
+  var t = { spend: 0, msgs: 0, booked: 0, dueTotal: 0, showed: 0, trialYes: 0, enrolledTest: 0, enrolled: 0 };
+  var per = [];
+  S.campaigns.forEach(function (c) {
+    var m = computeMetrics(c);
+    ['spend', 'msgs', 'booked', 'dueTotal', 'showed', 'trialYes', 'enrolledTest', 'enrolled'].forEach(function (k) { t[k] += Number(m[k]) || 0; });
+    per.push({ c: c, m: m });
+  });
+  t.rMsgBook = t.msgs ? t.booked / t.msgs : null;
+  t.rBookShow = t.dueTotal ? t.showed / t.dueTotal : null;
+  t.rShowTrial = t.showed ? t.trialYes / t.showed : null;
+  t.rTrialEnroll = t.trialYes ? t.enrolledTest / t.trialYes : null;
+  t.msgCost = t.msgs ? t.spend / t.msgs : null;
+  t.cpa = t.enrolled ? t.spend / t.enrolled : null;
+  t.per = per;
+  return t;
+}
+
+/* 回訪名單：所有波次中，到場做過測驗、但還沒報名的家庭 */
+function recontactList() {
+  var out = [];
+  S.campaigns.forEach(function (c) {
+    c.bookings.forEach(function (b) {
+      if (b.kind === 'direct' || b.status !== 'showed' || b.enrolled === true) return;
+      out.push({ c: c, b: b, st: (b.recontact && b.recontact.status) || 'todo' });
+    });
+  });
+  out.sort(function (a, b) { return (b.b.testDate || '') < (a.b.testDate || '') ? -1 : 1; });
+  return out;
+}
+function ageBand(age) {
+  var a = Number(age);
+  if (!a) return 'unknown';
+  if (a <= 6) return 'young';
+  if (a <= 9) return 'mid';
+  return 'old';
+}
+function fillTpl(b) {
+  var tpl = S.recontactTpl || RC_DEFAULT_TPL;
+  var nm = (b.name || '').replace(/\s*(男|女)$/, '').trim() || '孩子';
+  return tpl.replace(/\{name\}/g, nm).replace(/\{age\}/g, b.age || '');
+}
+
+/* 看板欄位：依現有欄位（status／trial／enrolled）判斷在哪一關 */
+var BOARD_COLS = [['pending', '待測驗'], ['showed', '到場'], ['trial', '試上'], ['enrolled', '報名'], ['lost', '沒成']];
+function boardCol(b) {
+  if (b.enrolled === true) return 'enrolled';
+  if (b.status === 'noshow' || b.enrolled === false || b.trial === 'declined') return 'lost';
+  if (b.status === 'showed' && (b.trial === 'booked' || b.trial === 'done')) return 'trial';
+  if (b.status === 'showed') return 'showed';
+  return 'pending';
+}
+function moveToCol(b, col) {
+  if (col === 'pending') { b.status = 'pending'; b.trial = 'none'; b.enrolled = null; }
+  else if (col === 'showed') { b.status = 'showed'; b.trial = 'none'; b.enrolled = null; }
+  else if (col === 'trial') { b.status = 'showed'; if (b.trial !== 'done') b.trial = 'booked'; b.enrolled = null; }
+  else if (col === 'enrolled') { b.status = 'showed'; b.trial = 'done'; b.enrolled = true; }
+  else if (col === 'lost') { if (b.status === 'showed') b.enrolled = false; else b.status = 'noshow'; }
+}
+
+function ovTip(e, html) {
+  var t = document.getElementById('ovTip');
+  if (!t) { t = document.createElement('div'); t.id = 'ovTip'; t.className = 'ov-tip'; document.body.appendChild(t); }
+  t.innerHTML = html; t.classList.add('on');
+  t.style.left = Math.min(e.clientX + 14, window.innerWidth - t.offsetWidth - 8) + 'px';
+  t.style.top = (e.clientY + 14) + 'px';
+}
+function ovTipOff() { var t = document.getElementById('ovTip'); if (t) t.classList.remove('on'); }
+
+function viewOverview(c, m) {
+  var A = allMetrics();
+  var a = AGENT;   // 最新的雲端 agent 報告（可能還沒有）
+  var met = (a && a.metrics) || {};
+  var light = a ? (a.light || 'grey') : ({ green: 'green', amber: 'amber', red: 'red' }[m.verdict.level] || 'grey');
+  var lightName = { green: '綠燈', amber: '黃燈', red: '紅燈', grey: '資料不足' }[light];
+  var title = a ? a.title : m.verdict.title;
+  var rc = recontactList();
+  var rcTodo = rc.filter(function (x) { return x.st === 'todo'; }).length;
+  var h = '';
+
+  /* ── 第一排：今天的結論＋要做的事｜受眾雷達 ── */
+  h += '<div class="ov-grid ov-r1">';
+  h += '<div class="panel" style="margin:0">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>00</b>TODAY · ' + esc(shortDate(m.today)) + '（' + weekdayTW(m.today) + '）</span><span class="ov-light ' + light + '"><i></i>' + lightName + '</span></div>';
+  h += '<div class="ov-screen"><div class="ov-verdict" id="ovVerdict">' + esc(title) + '</div>';
+  h += '<div class="tiny muted">' + esc(c.name) + '　第 ' + Math.max(0, m.dayIndex) + ' / ' + m.totalDays + ' 天</div>';
+  h += '<svg class="ov-spark" id="ovSpark" viewBox="0 0 700 84" preserveAspectRatio="none"></svg></div>';
+  /* 今天要做：agent 的待辦＋決策中要跟進的＋回訪名單 */
+  var todos = [];
+  ((a && a.todo) || m.verdict.todo || []).slice(0, 3).forEach(function (t) { todos.push({ text: t }); });
+  if (m.queueTodo > 0) todos.push({ text: '有 ' + m.queueTodo + ' 組到場後還在決策、還沒跟進的家長', go: 'today' });
+  if (rcTodo > 0) todos.push({ text: '回訪名單還有 ' + rcTodo + ' 戶沒聯絡（測驗過、還沒報名）', go: 'rc' });
+  var testsToday = c.bookings.filter(function (b) { return b.testDate === m.today && b.status === 'pending'; }).length;
+  if (testsToday) todos.unshift({ text: '今天有 ' + testsToday + ' 組測驗，記得確認到場', go: 'board' });
+  h += '<ul class="ov-todo">' + todos.map(function (t, i) {
+    return '<li><span class="k">0' + (i + 1) + '</span><span>' + esc(t.text) + '</span>' +
+      (t.go ? '<button class="ghost" data-ovgo="' + t.go + '">去處理</button>' : '') + '</li>';
+  }).join('') + '</ul>';
+  h += '</div>';
+
+  h += '<div class="panel" style="margin:0">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>01</b>REACH · 新觸及</span><span class="ov-eng">AGENT</span></div>';
+  if (met.new_reach != null) {
+    h += '<div class="ov-radar" id="ovRadar"><div class="ov-sweep"></div></div>';
+    h += '<div class="ov-legend"><span>● 新面孔 <b>' + met.new_reach + '%</b></span><span style="color:var(--dim)">● 看過的人 ' + (100 - met.new_reach) + '%</span></div>';
+    h += '<p class="tiny muted" style="margin:8px 0 0;text-align:center">' + (met.new_reach < 50 ? '低於 50%：受眾大多看過了，要換素材或換受眾' : '新面孔還夠，受眾沒用完') + '</p>';
+  } else {
+    h += '<p class="tiny muted">等雲端 agent 的下一份報告，就會顯示這一波還有多少新面孔。</p>';
+  }
+  h += '</div></div>';
+
+  /* ── 第二排：主角數字｜LED 漏斗 ── */
+  var red = c.thresholds.msgCostRed, green = c.thresholds.msgCostGreen;
+  var mc = m.msgCost;
+  var over = mc != null && red ? (mc - red) / red : null;
+  h += '<div class="ov-grid ov-r2">';
+  h += '<div class="panel" style="margin:0">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>02</b>COST / MSG · 這一波每則訊息成本</span><span class="ov-eng">LIMIT ' + red + '</span></div>';
+  h += '<div class="ov-big"><div class="ov-dot' + (mc != null && mc <= green ? ' ok' : '') + '" id="ovHero" data-to="' + (mc == null ? 0 : Math.round(mc)) + '">' + (mc == null ? '—' : '0') + '</div>';
+  h += '<div class="ov-delta" style="color:' + (over != null && over > 0 ? 'var(--coral)' : 'var(--cyan)') + '">' +
+    (over == null ? '還沒有訊息' : (over > 0 ? '▲ ' + Math.round(over * 100) + '% 超過紅線' : '▼ 在紅線內')) +
+    '<br>綠線 ' + green + '・紅線 ' + red + '<br>所有波次平均 ' + (A.msgCost == null ? '—' : Math.round(A.msgCost)) + '</div></div>';
+  h += '<div class="ov-reads">' +
+    '<div class="ov-read" data-ovtip="這一波累計花費"><span>SPEND</span><b>' + Math.round(m.spend).toLocaleString('en-US') + '</b></div>' +
+    '<div class="ov-read" data-ovtip="這一波累計訊息"><span>MSG</span><b>' + m.msgs + '</b></div>' +
+    '<div class="ov-read" data-ovtip="這一波預約測驗"><span>BOOKED</span><b>' + m.booked + '</b></div>' +
+    '<div class="ov-read" data-ovtip="所有波次：總花費 ÷ 總報名人數"><span>CPA 全部</span><b>' + (A.cpa == null ? '—' : Math.round(A.cpa).toLocaleString('en-US')) + '</b></div>' +
+    '</div></div>';
+
+  var F = [['訊息', A.msgs], ['預約', A.booked], ['到場', A.showed], ['試上', A.trialYes], ['報名', A.enrolledTest]];
+  /* 測驗之後（到場、試上、報名）哪一關掉最多：這段在教室手上，最值得修 */
+  var worst = -1, worstRate = 2;
+  for (var fi = 2; fi < F.length; fi++) {
+    if (!F[fi - 1][1]) continue;
+    var rr = F[fi][1] / F[fi - 1][1];
+    if (rr < worstRate) { worstRate = rr; worst = fi; }
+  }
+  h += '<div class="panel" style="margin:0">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>03</b>FUNNEL · 所有波次累計</span><span class="ov-eng">CONV</span></div>';
+  h += F.map(function (f, i) {
+    var prev = i ? F[i - 1][1] : null, rate = prev ? Math.round((f[1] / prev) * 100) + '%' : '—';
+    var tip = prev ? F[i - 1][0] + ' → ' + f[0] + '：' + prev + ' 人裡 ' + f[1] + ' 人（' + rate + '）' + (i === worst ? '<br><span class="o">最會漏的一關</span>' : '') : '所有波次累計的訊息數';
+    return '<div class="ov-meter' + (i === worst ? ' leak' : '') + '" data-ovtip="' + esc(tip) + '" data-on="' + Math.max(f[1] ? 1 : 0, Math.round((f[1] / Math.max(1, F[0][1])) * 22)) + '"><span>' + f[0] + '</span><div class="ov-seg">' + new Array(23).join('<i></i>') + '</div><b>' + f[1] + '</b><em>' + rate + '</em></div>';
+  }).join('');
+  h += '</div></div>';
+
+  /* ── 試算器 ── */
+  var conv0 = A.rShowTrial == null ? 0.32 : A.rShowTrial;
+  if (OV.conv == null) OV.conv = Math.round(conv0 * 100);
+  h += '<div class="ov-grid ov-r3"><div class="panel" style="margin:0">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>04</b>SIMULATOR · 轉動旋鈕：測驗後接得好，可以省多少廣告費</span><span class="ov-eng">DRAG / SCROLL</span></div>';
+  h += '<div class="ov-sim"><div class="ov-dial" id="ovDial" role="slider" tabindex="0" aria-label="測驗到試上的轉換率" aria-valuemin="10" aria-valuemax="80">' +
+    '<svg viewBox="0 0 140 140" id="ovTicks"></svg><div class="ov-knob"><div class="ov-ptr" id="ovPtr"></div><div class="ov-val" id="ovVal"></div></div></div>';
+  h += '<div><p style="margin:0;font-size:15px">測驗 → 試上 <span class="num" style="color:var(--cyan)" id="ovConv"></span>（實際 ' + Math.round(conv0 * 100) + '%，其他轉換率用你的真實數字）</p>';
+  h += '<div class="ov-outs"><div class="ov-out"><span>每月需要訊息</span><b id="ovMsg">—</b></div><div class="ov-out"><span>每月需要測驗</span><b id="ovTest">—</b></div><div class="ov-out"><span>每月廣告費</span><b id="ovCost">—</b></div></div>';
+  h += '<div class="ov-ctl"><span>每月目標新生</span><span class="ov-step"><button id="ovMinus" aria-label="減少">−</button><b id="ovTarget">' + OV.target + '</b><button id="ovPlus" aria-label="增加">＋</button></span>' +
+    '<span>每則訊息成本</span><span class="ov-segbtn" id="ovCpm">' +
+    '<button data-k="all"' + (OV.cpmKey === 'all' ? ' class="on"' : '') + '>全部平均 ' + (A.msgCost == null ? '—' : Math.round(A.msgCost)) + '</button>' +
+    '<button data-k="red"' + (OV.cpmKey === 'red' ? ' class="on"' : '') + '>紅線 ' + red + '</button>' +
+    '<button data-k="now"' + (OV.cpmKey === 'now' ? ' class="on"' : '') + '>這一波 ' + (mc == null ? '—' : Math.round(mc)) + '</button></span></div>';
+  h += '<p style="margin:10px 0 0;font-size:14px" id="ovSave"></p></div></div>';
+  h += '</div></div>';
+
+  /* ── 回訪清單 ── */
+  h += '<div class="panel" id="ovRc">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>05</b>RECONTACT · 回訪名單（測驗過、還沒報名）</span><span class="ov-eng">' + rc.length + ' 戶</span></div>';
+  h += '<p class="lede">這些家庭已經認識序曲、孩子來過教室，比廣告受眾更容易報名。複製訊息貼到 LINE 或 Messenger，傳完記得按「已傳」。</p>';
+  h += '<details class="rc-tpl"><summary>編輯訊息範本（{name} 會換成孩子的名字）</summary><div class="dbody"><textarea id="rcTpl" rows="4">' + esc(S.recontactTpl || RC_DEFAULT_TPL) + '</textarea>' +
+    '<div class="btns" style="margin-top:8px"><button class="act" id="rcTplSave">儲存範本</button><button class="ghost" id="rcTplReset">恢復預設</button></div></div></details>';
+  h += '<div class="rc-filter" style="margin-top:12px"><span class="ov-segbtn" id="rcBand">' +
+    [['all', '全部'], ['young', '6 歲以下'], ['mid', '7–9 歲'], ['old', '10 歲以上']].map(function (x) {
+      return '<button data-k="' + x[0] + '"' + (OV.rcFilter === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>';
+    }).join('') + '</span>' +
+    '<label class="tiny muted" style="display:inline-flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="rcShowDone" style="width:auto"' + (OV.rcShowDone ? ' checked' : '') + '>也顯示已約成／不用了</label></div>';
+  var rows = rc.filter(function (x) {
+    if (!OV.rcShowDone && (x.st === 'booked' || x.st === 'no')) return false;
+    return OV.rcFilter === 'all' || ageBand(x.b.age) === OV.rcFilter;
+  });
+  if (!rows.length) h += '<p class="tiny muted">這個篩選下沒有名單。</p>';
+  rows.forEach(function (x) {
+    var b = x.b, rcv = b.recontact || {};
+    var stHit = RC_STATUS.filter(function (s) { return s[0] === x.st; })[0];
+    var stName = stHit ? stHit[1] : '還沒聯絡';
+    var reason = b.lostReason ? (AFTER_REASONS.filter(function (r) { return r[0] === b.lostReason; })[0] || [0, ''])[1] : '';
+    h += '<div class="rc-row"><div><b style="font-weight:600">' + esc(b.name || '（未填姓名）') + '</b><div class="tiny muted">' + esc(x.c.name) + '</div></div>' +
+      '<div class="num">' + (b.age ? b.age + ' 歲' : '—') + '</div>' +
+      '<div class="tiny">測驗 ' + shortDate(b.testDate) + (reason ? '<br><span class="muted">' + esc(reason) + '</span>' : '') + '</div>' +
+      '<div class="st rc-st-' + x.st + '">' + stName + (rcv.date ? '　' + shortDate(rcv.date) : '') + '</div>' +
+      '<div class="rc-acts"><button class="ghost" data-rccopy="' + b.id + '">複製訊息</button>' +
+      (x.st === 'todo' ? '<button class="act" data-rcset="' + b.id + ':sent">已傳</button>' : '') +
+      (x.st === 'sent' ? '<button class="ghost" data-rcset="' + b.id + ':replied">有回覆</button>' : '') +
+      (x.st === 'sent' || x.st === 'replied' ? '<button class="act" data-rcset="' + b.id + ':booked">約成了</button>' : '') +
+      (x.st !== 'no' && x.st !== 'booked' ? '<button class="ghost" data-rcset="' + b.id + ':no">不用了</button>' : '<button class="ghost" data-rcset="' + b.id + ':todo">重來</button>') +
+      '</div></div>';
+  });
+  h += '</div>';
+
+  /* ── 預約看板（這一波）── */
+  h += '<div class="panel" id="ovBoard">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>06</b>PIPELINE · ' + esc(c.name) + '（拖曳卡片換關卡）</span><span class="ov-eng">DRAG &amp; DROP</span></div>';
+  h += '<div class="ov-board">' + BOARD_COLS.map(function (col) {
+    var cards = c.bookings.filter(function (b) { return b.kind !== 'direct' && boardCol(b) === col[0]; });
+    return '<div class="ov-col" data-col="' + col[0] + '"><h3><span>' + col[1] + '</span><b>' + cards.length + '</b></h3>' +
+      cards.map(function (b) {
+        var late = col[0] === 'pending' && b.testDate && b.testDate < m.today;
+        var deciding = col[0] === 'showed' && b.testDate && dayDiff(b.testDate, m.today) >= 3;
+        var meta = (b.age ? b.age + ' 歲 · ' : '') + (late ? '測驗日已過，確認有沒有來' : deciding ? '到場 ' + dayDiff(b.testDate, m.today) + ' 天，還沒約試上' : '測驗 ' + shortDate(b.testDate));
+        return '<div class="ov-card' + (late || deciding ? ' late' : '') + '" draggable="true" data-bid="' + b.id + '">' + esc(b.name || '（未填姓名）') + '<small>' + esc(meta) + '</small></div>';
+      }).join('') + '</div>';
+  }).join('') + '</div>';
+  h += '<p class="tiny muted" style="margin:10px 0 0">拖到「沒成」：還沒到場的記成爽約、到場過的記成沒報名。細節（沒報名原因、直接報名）一樣在「記錄」頁改。</p>';
+  h += '</div>';
+
+  /* ── 每日圖表（所有波次）── */
+  h += '<div class="panel">';
+  h += '<div class="ov-head"><span class="ov-eng"><b>07</b>DAILY · 每日訊息（白條）與花費（橘線）</span><span class="ov-eng">ALL WAVES</span></div>';
+  h += '<svg class="ov-chart" id="ovChart" viewBox="0 0 900 200" preserveAspectRatio="none"></svg>';
+  h += '</div>';
+
+  return h;
+}
+
+function wireOverview(c, m) {
+  var A = allMetrics();
+  var anim = !OV.animated && !OV_REDUCED;
+  OV.animated = true;
+
+  /* 今日結論：偶爾閃一下（只在黃燈、紅燈） */
+  clearInterval(OV.glitchTimer);
+  var vEl = document.getElementById('ovVerdict');
+  var light = AGENT ? AGENT.light : m.verdict.level;
+  if (vEl && !OV_REDUCED && (light === 'red' || light === 'amber')) {
+    OV.glitchTimer = setInterval(function () {
+      var el = document.getElementById('ovVerdict'); if (!el) return;
+      el.classList.remove('glitch'); void el.offsetWidth; el.classList.add('glitch');
+    }, 7000);
+  }
+
+  /* 這一波最近 14 天的訊息走勢 */
+  var sp = document.getElementById('ovSpark');
+  if (sp) {
+    var days = c.days.filter(function (d) { return d.date <= m.today && (d.msgs != null || d.spend != null); })
+      .sort(function (x, y) { return x.date < y.date ? -1 : 1; }).slice(-14);
+    if (days.length >= 2) {
+      var W = 700, maxM = Math.max(3, Math.max.apply(null, days.map(function (d) { return Number(d.msgs) || 0; })));
+      var maxS = Math.max.apply(null, days.map(function (d) { return Number(d.spend) || 0; })) || 1;
+      var X = function (i) { return 10 + i * (W - 20) / (days.length - 1); };
+      var Y = function (v) { return 72 - (v / maxM) * 56; };
+      var g = '<g stroke="#16313a"><line x1="0" y1="16" x2="700" y2="16"/><line x1="0" y1="44" x2="700" y2="44"/><line x1="0" y1="72" x2="700" y2="72"/></g>';
+      days.forEach(function (d, i) { var hh = ((Number(d.spend) || 0) / maxS) * 34; g += '<rect x="' + (X(i) - 10) + '" y="' + (78 - hh) + '" width="20" height="' + hh + '" fill="rgba(255,90,31,.12)"/>'; });
+      var pts = days.map(function (d, i) { return X(i) + ',' + Y(Number(d.msgs) || 0); }).join(' ');
+      g += '<polyline id="ovLine" points="' + pts + '" fill="none" stroke="#3EC6E0" stroke-width="2" style="filter:drop-shadow(0 0 4px #3EC6E0)"/>';
+      g += '<line id="ovCross" x1="0" y1="0" x2="0" y2="84" stroke="#3EC6E0" stroke-dasharray="2 3" opacity="0"/>';
+      g += '<text x="4" y="11" fill="#3EC6E0" font-size="9.5" font-family="Consolas" letter-spacing="1.5">MSG / DAY · 最近 ' + days.length + ' 天</text>';
+      sp.innerHTML = g;
+      var ln = document.getElementById('ovLine');
+      if (anim && ln.getTotalLength) {
+        var L = Math.ceil(ln.getTotalLength()) + 1;
+        ln.style.strokeDasharray = L; ln.style.strokeDashoffset = L;
+        ln.getBoundingClientRect();
+        ln.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1) .15s'; ln.style.strokeDashoffset = 0;
+        setTimeout(function () { ln.style.strokeDasharray = 'none'; }, 1800);
+      }
+      sp.onmousemove = function (e) {
+        var r = sp.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+        var i = Math.max(0, Math.min(days.length - 1, Math.round((px - 10) / (W - 20) * (days.length - 1))));
+        var cr = document.getElementById('ovCross'); cr.setAttribute('x1', X(i)); cr.setAttribute('x2', X(i)); cr.setAttribute('opacity', 1);
+        var d = days[i];
+        ovTip(e, shortDate(d.date) + '（' + weekdayTW(d.date) + '）<br>訊息 <b>' + (d.msgs == null ? '—' : d.msgs) + '</b>　花費 <span class="o">' + (d.spend == null ? '—' : d.spend) + '</span>');
+      };
+      sp.onmouseleave = function () { document.getElementById('ovCross').setAttribute('opacity', 0); ovTipOff(); };
+    } else {
+      sp.outerHTML = '<p class="tiny muted" style="margin:8px 0 0">這一波記錄滿兩天後，這裡會出現每日訊息走勢。</p>';
+    }
+  }
+
+  /* 雷達：掃描線掃過時亮起 */
+  var rd = document.getElementById('ovRadar');
+  if (rd && AGENT && AGENT.metrics && AGENT.metrics.new_reach != null) {
+    var nr = AGENT.metrics.new_reach, total = 14, nNew = Math.round(nr / 100 * total);
+    var pos = [[62,28],[30,66],[74,68],[40,22],[53,43],[22,40],[61,57],[44,76],[80,42],[34,50],[57,82],[18,60],[70,30],[46,60]];
+    var blips = pos.slice(0, total).map(function (p, i) {
+      var el = document.createElement('i'); el.className = 'ov-blip' + (i < nNew ? ' new' : '');
+      el.style.left = p[0] + '%'; el.style.top = p[1] + '%'; rd.appendChild(el);
+      return { el: el, ang: (Math.atan2(p[1] - 50, p[0] - 50) * 180 / Math.PI + 450) % 360 };
+    });
+    rd.onmousemove = function (e) { ovTip(e, '雲端 agent 最新報告<br>新面孔比例 <b>' + nr + '%</b><br>門檻 50%：低於代表受眾用完'); };
+    rd.onmouseleave = ovTipOff;
+    var run = ++OV.radarRun, t0 = performance.now();
+    if (OV_REDUCED) blips.forEach(function (b) { b.el.classList.add('hit'); });
+    else (function loop(t) {
+      if (run !== OV.radarRun || !document.body.contains(rd)) return;
+      var sw = ((t - t0) / 4000 * 360) % 360;
+      blips.forEach(function (b) { b.el.classList.toggle('hit', (sw - b.ang + 360) % 360 < 60); });
+      requestAnimationFrame(loop);
+    })(t0);
+  }
+
+  /* 主角數字往上跳 */
+  var hero = document.getElementById('ovHero');
+  if (hero && hero.dataset.to !== undefined && hero.textContent !== '—') {
+    var to = Number(hero.dataset.to);
+    if (!anim) hero.textContent = to;
+    else {
+      var h0 = performance.now();
+      (function step(t) { var p = Math.min((t - h0) / 1000, 1); hero.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(h0);
+      setTimeout(function () { hero.textContent = to; }, 1400);
+    }
+  }
+
+  /* LED 漏斗：一格一格亮 */
+  document.querySelectorAll('.ov-meter').forEach(function (row, ri) {
+    var on = Number(row.dataset.on), cells = row.querySelectorAll('.ov-seg i'), hot = row.classList.contains('leak');
+    for (var k = 0; k < on && k < cells.length; k++) {
+      (function (cell, delay) {
+        if (anim) setTimeout(function () { cell.classList.add(hot ? 'hot' : 'on'); }, delay);
+        else cell.classList.add(hot ? 'hot' : 'on');
+      })(cells[k], 200 + ri * 110 + k * 26);
+    }
+  });
+
+  /* 滑過顯示說明 */
+  document.querySelectorAll('[data-ovtip]').forEach(function (el) {
+    el.onmousemove = function (e) { ovTip(e, el.dataset.ovtip); };
+    el.onmouseleave = ovTipOff;
+  });
+
+  /* 「去處理」 */
+  document.querySelectorAll('[data-ovgo]').forEach(function (b) {
+    b.onclick = function () {
+      var g = b.dataset.ovgo;
+      if (g === 'today') { TAB = 'today'; render(); window.scrollTo(0, 0); return; }
+      var el = document.getElementById(g === 'rc' ? 'ovRc' : 'ovBoard');
+      if (el) el.scrollIntoView({ behavior: OV_REDUCED ? 'auto' : 'smooth', block: 'start' });
+    };
+  });
+
+  /* 試算器 */
+  var dial = document.getElementById('ovDial');
+  if (dial) {
+    var MIN = 10, MAX = 80, A0 = -135, A1 = 135, ticks = '';
+    for (var k = 0; k <= 30; k++) {
+      var an = (A0 + k / 30 * (A1 - A0)) * Math.PI / 180, r1 = 63, r2 = k % 5 ? 58 : 54;
+      ticks += '<line x1="' + (70 + Math.sin(an) * r2) + '" y1="' + (70 - Math.cos(an) * r2) + '" x2="' + (70 + Math.sin(an) * r1) + '" y2="' + (70 - Math.cos(an) * r1) + '" stroke-width="' + (k % 5 ? 1.2 : 2) + '" stroke-linecap="round"/>';
+    }
+    document.getElementById('ovTicks').innerHTML = ticks;
+    var tickEls = Array.prototype.slice.call(document.querySelectorAll('#ovTicks line'));
+    var rMB = A.rMsgBook || 0.25, rBS = A.rBookShow || 0.8, rTE = A.rTrialEnroll || 0.5;
+    var cpmFor = function () {
+      if (OV.cpmKey === 'red') return c.thresholds.msgCostRed;
+      if (OV.cpmKey === 'now' && m.msgCost) return m.msgCost;
+      return A.msgCost || c.thresholds.msgCostRed;
+    };
+    var calc = function (conv) {
+      var tests = OV.target / rTE / (conv / 100), msgs = tests / rBS / rMB;
+      return { tests: tests, msgs: msgs, cost: msgs * cpmFor() };
+    };
+    var base = Math.round((A.rShowTrial || 0.32) * 100);
+    var paint = function () {
+      var v = OV.conv, ang = A0 + (v - MIN) / (MAX - MIN) * (A1 - A0);
+      document.getElementById('ovPtr').style.transform = 'rotate(' + ang + 'deg)';
+      document.getElementById('ovVal').textContent = v;
+      document.getElementById('ovConv').textContent = v + '%';
+      dial.setAttribute('aria-valuenow', v);
+      var lit = Math.round((v - MIN) / (MAX - MIN) * 30);
+      tickEls.forEach(function (l, i) { l.setAttribute('stroke', i <= lit ? '#3EC6E0' : '#33403f'); });
+      var now = calc(v), b0 = calc(base);
+      document.getElementById('ovMsg').textContent = Math.round(now.msgs);
+      document.getElementById('ovTest').textContent = Math.round(now.tests);
+      document.getElementById('ovCost').textContent = Math.round(now.cost).toLocaleString('en-US');
+      var diff = b0.cost - now.cost;
+      document.getElementById('ovSave').innerHTML = v === base ? '這是你現在的轉換率。把旋鈕往右轉，看看測驗後接得更好能省多少。'
+        : diff > 0 ? '比現在（' + base + '%）每月省 <b class="num" style="color:var(--cyan)">' + Math.round(diff).toLocaleString('en-US') + '</b> 元，廣告費 <b class="num" style="color:var(--cyan)">−' + Math.round(diff / b0.cost * 100) + '%</b>'
+        : '比現在（' + base + '%）每月多花 <b class="num" style="color:var(--coral)">' + Math.round(-diff).toLocaleString('en-US') + '</b> 元';
+    };
+    var setFrom = function (e) {
+      var r = dial.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      var a2 = Math.atan2(e.clientX - cx, cy - e.clientY) * 180 / Math.PI;
+      a2 = Math.max(A0, Math.min(A1, a2));
+      OV.conv = Math.round(MIN + (a2 - A0) / (A1 - A0) * (MAX - MIN)); paint();
+    };
+    dial.onpointerdown = function (e) { dial.setPointerCapture(e.pointerId); setFrom(e); };
+    dial.onpointermove = function (e) { if (dial.hasPointerCapture(e.pointerId)) setFrom(e); };
+    dial.addEventListener('wheel', function (e) { e.preventDefault(); OV.conv = Math.max(MIN, Math.min(MAX, OV.conv + (e.deltaY < 0 ? 1 : -1))); paint(); }, { passive: false });
+    dial.onkeydown = function (e) {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowRight') OV.conv = Math.min(MAX, OV.conv + 1);
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') OV.conv = Math.max(MIN, OV.conv - 1);
+      else return;
+      e.preventDefault(); paint();
+    };
+    document.getElementById('ovMinus').onclick = function () { OV.target = Math.max(1, OV.target - 1); document.getElementById('ovTarget').textContent = OV.target; paint(); };
+    document.getElementById('ovPlus').onclick = function () { OV.target = Math.min(30, OV.target + 1); document.getElementById('ovTarget').textContent = OV.target; paint(); };
+    document.querySelectorAll('#ovCpm button').forEach(function (b) {
+      b.onclick = function () { OV.cpmKey = b.dataset.k; document.querySelectorAll('#ovCpm button').forEach(function (x) { x.classList.toggle('on', x === b); }); paint(); };
+    });
+    paint();
+  }
+
+  /* 回訪清單 */
+  var findB = function (id) {
+    for (var i = 0; i < S.campaigns.length; i++) for (var j = 0; j < S.campaigns[i].bookings.length; j++) if (S.campaigns[i].bookings[j].id === id) return S.campaigns[i].bookings[j];
+    return null;
+  };
+  document.querySelectorAll('[data-rccopy]').forEach(function (btn) {
+    btn.onclick = function () { var b = findB(btn.dataset.rccopy); if (b) copyText(fillTpl(b), '訊息已複製'); };
+  });
+  document.querySelectorAll('[data-rcset]').forEach(function (btn) {
+    btn.onclick = function () {
+      var p = btn.dataset.rcset.split(':'), b = findB(p[0]); if (!b) return;
+      b.recontact = { status: p[1], date: todayISO() };
+      commit();
+    };
+  });
+  document.querySelectorAll('#rcBand button').forEach(function (b) { b.onclick = function () { OV.rcFilter = b.dataset.k; render(); }; });
+  var sd = document.getElementById('rcShowDone'); if (sd) sd.onchange = function () { OV.rcShowDone = sd.checked; render(); };
+  var ts = document.getElementById('rcTplSave'); if (ts) ts.onclick = function () { S.recontactTpl = document.getElementById('rcTpl').value.trim() || RC_DEFAULT_TPL; toast('範本已儲存'); commit(); };
+  var tr = document.getElementById('rcTplReset'); if (tr) tr.onclick = function () { delete S.recontactTpl; toast('已恢復預設範本'); commit(); };
+
+  /* 預約看板：拖曳 */
+  var dragId = null;
+  document.querySelectorAll('.ov-card').forEach(function (cd) {
+    cd.ondragstart = function (e) { dragId = cd.dataset.bid; cd.classList.add('dragging'); try { e.dataTransfer.setData('text/plain', dragId); } catch (x) {} };
+    cd.ondragend = function () { cd.classList.remove('dragging'); };
+  });
+  document.querySelectorAll('.ov-col').forEach(function (col) {
+    col.ondragover = function (e) { e.preventDefault(); col.classList.add('over'); };
+    col.ondragleave = function () { col.classList.remove('over'); };
+    col.ondrop = function (e) {
+      e.preventDefault(); col.classList.remove('over');
+      var b = dragId && findB(dragId); if (!b) return;
+      if (boardCol(b) === col.dataset.col) return;
+      moveToCol(b, col.dataset.col);
+      toast((b.name || '這一組') + ' → ' + col.querySelector('h3 span').textContent);
+      commit();
+    };
+  });
+
+  /* 每日圖表 */
+  var ch = document.getElementById('ovChart');
+  if (ch) {
+    var W2 = 900, H2 = 200, pb = 26, pt = 12, gap = 12;
+    var all = [];
+    S.campaigns.slice().sort(function (x, y) { return x.start < y.start ? -1 : 1; }).forEach(function (cc, wi) {
+      cc.days.filter(function (d) { return d.msgs != null || d.spend != null; }).sort(function (x, y) { return x.date < y.date ? -1 : 1; })
+        .forEach(function (d) { all.push({ wi: wi, wave: cc.name, date: d.date, s: Number(d.spend) || 0, m: Number(d.msgs) || 0 }); });
+    });
+    if (all.length) {
+      var nW = all[all.length - 1].wi + 1, bw = (W2 - gap * (nW - 1)) / all.length;
+      var maxMs = Math.max(4, Math.max.apply(null, all.map(function (d) { return d.m; })));
+      var maxSp = Math.max.apply(null, all.map(function (d) { return d.s; })) || 1;
+      var xs = [], last = 0, xo = 0, g2 = '';
+      all.forEach(function (d, i) {
+        if (d.wi !== last) { xo += gap; last = d.wi; }
+        var x = xo + i * bw; xs.push(x);
+        var hh = d.m / maxMs * (H2 - pb - pt);
+        g2 += '<rect x="' + (x + 1) + '" y="' + (H2 - pb - hh) + '" width="' + Math.max(1, bw - 2) + '" height="' + Math.max(hh, 1) + '" fill="#CFE7EC" opacity=".75"/>';
+      });
+      for (var wv = 0; wv < nW; wv++) {
+        var idx = []; all.forEach(function (d, i) { if (d.wi === wv) idx.push(i); });
+        if (!idx.length) continue;
+        g2 += '<polyline points="' + idx.map(function (i) { return (xs[i] + bw / 2) + ',' + (H2 - pb - all[i].s / maxSp * (H2 - pb - pt)); }).join(' ') + '" fill="none" stroke="#FF5A1F" stroke-width="1.5" opacity=".9"/>';
+        g2 += '<text x="' + xs[idx[0]] + '" y="' + (H2 - 8) + '" fill="#5f6d71" font-size="10.5" font-family="Microsoft JhengHei">' + esc(all[idx[0]].wave.slice(0, 12)) + '</text>';
+      }
+      g2 += '<line id="ovV" x1="0" y1="' + pt + '" x2="0" y2="' + (H2 - pb) + '" stroke="#3EC6E0" stroke-dasharray="2 3" opacity="0"/>';
+      ch.innerHTML = g2;
+      ch.onmousemove = function (e) {
+        var r = ch.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W2, best = 0;
+        xs.forEach(function (x, i) { if (Math.abs(x + bw / 2 - px) < Math.abs(xs[best] + bw / 2 - px)) best = i; });
+        var d = all[best], vl = document.getElementById('ovV');
+        vl.setAttribute('x1', xs[best] + bw / 2); vl.setAttribute('x2', xs[best] + bw / 2); vl.setAttribute('opacity', 1);
+        ovTip(e, esc(d.wave) + '<br>' + shortDate(d.date) + '（' + weekdayTW(d.date) + '）　訊息 <b>' + d.m + '</b>　花費 <span class="o">' + d.s + '</span>' + (d.m ? '<br>每則 ' + Math.round(d.s / d.m) + ' 元' : ''));
+      };
+      ch.onmouseleave = function () { document.getElementById('ovV').setAttribute('opacity', 0); ovTipOff(); };
+    } else {
+      ch.outerHTML = '<p class="tiny muted">還沒有每日數字。</p>';
+    }
+  }
 }
 
 /* ---------- 今天 ---------- */
